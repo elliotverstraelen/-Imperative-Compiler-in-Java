@@ -4,7 +4,7 @@ import java.io.Reader;
 public class Lexer {
 
     private Reader sourceFile;
-    private Symbol currentSymbol
+    private int currentChar
     
     public Lexer(Reader input) {
         this.sourceFile = sourceFile;
@@ -15,7 +15,25 @@ public class Lexer {
     }
     
     public Symbol getNextSymbol() throws IOException {
-        //Implement the logic
+        StringBuilder lexemeBuilder = new StringBuilder();
+        int state = 0;
+
+        while(true) {
+            switch (state) {
+                case 0:
+                    // TODO
+                    // Initial State
+                    break;
+                case 1:
+                    // TODO
+                    // Identifiers
+                    break;
+                case 2:
+                    // TODO
+                    // Integers
+                    break;
+            }
+        }
     }
 
 }
