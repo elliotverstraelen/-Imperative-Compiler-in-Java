@@ -184,12 +184,17 @@ public class Lexer {
         if (specialSymbols.contains(Character.toString((char) currentChar))) {
             // Add character to lexeme
             lexemeBuilder.append((char) currentChar);
+            // Avoid duplicate symbols (otherwise i.e. "((" would be tagged as unknown symbol)
+            String duplicateSymbols = "(){}[]";
+            boolean canBeDuplicateSymbol = duplicateSymbols.contains(Character.toString((char) currentChar));
+            // Check for duplicate symbols
             if (readNextChar() == -1) {
                 // Error while reading next character
                 return new Symbol(SymbolType.EOF, null);
             }
             // Check for double symbols
-            if (specialSymbols.contains(Character.toString((char) currentChar))) {
+            // Avoid comments without space (otherwise i.e. ";/" would be tagged as unknown symbol)
+            if (specialSymbols.contains(Character.toString((char) currentChar)) && !canBeDuplicateSymbol && currentChar != '/') {
                 // Add character to lexeme
                 lexemeBuilder.append((char) currentChar);
                 if (readNextChar() == -1) {
