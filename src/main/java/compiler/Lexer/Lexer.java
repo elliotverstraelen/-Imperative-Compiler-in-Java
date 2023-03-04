@@ -93,7 +93,7 @@ public class Lexer {
             return getNextSymbol(); // Get next symbol
         }
 
-        // Check for identifiers and keywords
+        // Check for identifiers, keywords and boolean values
         if (currentChar == '_' || Character.isLetter(currentChar)) {
             while (currentChar == '_' || Character.isLetter(currentChar) || Character.isDigit(currentChar)) {
                 // Add character to lexeme
@@ -120,6 +120,7 @@ public class Lexer {
                 case "return" -> new Symbol(SymbolType.KEYWORD_RETURN, lexeme);
                 case "and" -> new Symbol(SymbolType.KEYWORD_AND, lexeme);
                 case "or" -> new Symbol(SymbolType.KEYWORD_OR, lexeme);
+                case "true", "false" -> new Symbol(SymbolType.BOOLEAN, lexeme);
                 default -> new Symbol(SymbolType.IDENTIFIER, lexeme);
             };
         }
@@ -187,12 +188,11 @@ public class Lexer {
             // Avoid duplicate symbols (otherwise i.e. "((" would be tagged as unknown symbol)
             String duplicateSymbols = "(){}[]";
             boolean canBeDuplicateSymbol = duplicateSymbols.contains(Character.toString((char) currentChar));
-            // Check for duplicate symbols
+            // Get next character
             if (readNextChar() == -1) {
                 // Error while reading next character
                 return new Symbol(SymbolType.EOF, null);
             }
-            // Check for double symbols
             // Avoid comments without space (otherwise i.e. ";/" would be tagged as unknown symbol)
             if (specialSymbols.contains(Character.toString((char) currentChar)) && !canBeDuplicateSymbol && currentChar != '/') {
                 // Add character to lexeme
