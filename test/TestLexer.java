@@ -51,7 +51,7 @@ public class TestLexer {
         Symbol symbol = lexer.currentSymbol;
         for (Symbol expectedSymbol : expected) {
             // This will fail if the lexer returns a symbol or lexeme that is not in the expected array
-            assertEquals(symbol.getSymbolType(), expectedSymbol.getSymbolType());
+            assertEquals(symbol.getToken(), expectedSymbol.getToken());
             assertEquals(symbol.getLexeme(), expectedSymbol.getLexeme());
             symbol = lexer.getNextSymbol();
         }
