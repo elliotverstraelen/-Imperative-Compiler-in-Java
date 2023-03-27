@@ -1,0 +1,44 @@
+Program     -> RecordDecl* GeneralDecl* procDecl*
+GeneralDecl -> (const | var | val) Identifier Type = Expr ;
+RecordDecl  -> "record" identifier "{" RecordFields* "}" ";"
+RecordField -> identifier Type ";"
+Proc        -> identifier "(" Params ")" Type Block
+Params      -> e | Param MoreParams
+Param       -> identifier Type
+Block       -> "{" Stmts "}"
+Stmts       -> Stmt Stmts | e
+Stmt        -> IfElse | While | For | Assignment ";" | ProcCall ";"
+IfElse      -> "if" "(" Expr ")" Block ("else" Block)?
+While       -> "while" "(" Expr ")" Block
+For         -> "for" identifier "=" Expr "to" Expr Block
+Assignment  -> Left "=" Expr
+Left        -> identifier | ArrayAccess | FieldAccess
+ArrayAccess -> Left "[" Expr "]"
+FieldAccess -> Left "." identifier
+ProcCall    -> identifier "(" Exprs ")"
+Expr        -> "(" Expr ")"
+            | "-" Expr
+            | "not" Expr
+            | Expr ("*" | "/" | "%") Expr
+            | Expr ("+" | "-") Expr
+            | Expr ("<" | ">" | "<=" | ">=") Expr
+            | Expr ("==" | "<>") Expr
+            | Expr ("and" | "or") Expr
+            | Integer
+            | Real
+            | Boolean
+            | Strg
+            | Array
+            | Record
+            | identifier
+Type        -> "int" | "real" | "bool" | "string" | "void" | identifier
+ArrayType   -> type "[]"
+RecordType  -> identifier
+Integer     -> digit+
+Real        -> digit+ "." digit+
+Boolean     -> "true" | "false"
+Strg        -> '"' char* '"'
+Array       -> "int[]" "{" ArrayElem "}" | "real[]" "{" ArrayElem "}" | "bool[]" "{" ArrayElem "}" | "string[]" "{" ArrayElem "}"
+ArrayElem   -> e | Expr  MoreExpr
+Record      -> identifier "(" e ")" | identifier "(" RecordElem MoreRecordElem ")"
+RecordElem  -> FieldAccess "=" Expr

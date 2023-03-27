@@ -4,7 +4,7 @@ import org.junit.Test;
 import java.io.StringReader;
 import compiler.Lexer.Lexer;
 
-import static compiler.Lexer.Lexer.SymbolType.*;
+import static compiler.Lexer.Lexer.Token.*;
 import static org.junit.Assert.*;
 
 public class TestLexer {

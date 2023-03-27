@@ -1,25 +1,25 @@
 package compiler.Lexer;
 
 public class Symbol {
-    private final Lexer.SymbolType SymbolType; // Type of symbol
+    private final Lexer.Token Token; // Type of symbol
     private final String lexeme; // Lexeme of symbol
 
     /**
      * Constructor for Symbol
-     * @param SymbolType - Type of symbol
+     * @param Token - Type of symbol
      * @param lexeme - Lexeme of symbol
      */
-    public Symbol(Lexer.SymbolType SymbolType, String lexeme) {
-        this.SymbolType = SymbolType; // Set symbol type
+    public Symbol(Lexer.Token Token, String lexeme) {
+        this.Token = Token; // Set symbol type
         this.lexeme = lexeme; // Set lexeme
     }
 
     /**
      * Get the type of symbol
-     * @return SymbolType - Type of symbol
+     * @return Token - Type of symbol
      */
-    public Lexer.SymbolType getSymbolType(){
-        return this.SymbolType;
+    public Lexer.Token getToken(){
+        return this.Token;
     }
 
     /**
