@@ -81,7 +81,7 @@ val e int = a*2;    // value
 // array or record must be created.
 
 var c int[] = int[](5);  // new array of length 5
-var d Person = Person("me", Point(3,7), int[](a*2));  // new record
+//var d Person = Person("me", Point(3,7), int[](a*2));  // new record
 
 // Procedures:
 // Procedures have parameters and a return type. The return type
@@ -135,19 +135,19 @@ proc square(v int) int {
     return v*v;
 }
 
-proc copyPoints(p Point[]) Point {
-     return Point(p[0].x+p[1].x, p[0].y+p[1].y);
-}
+//proc copyPoints(p Point[]) Point {
+//     return Point(p[0].x+p[1].x, p[0].y+p[1].y);
+//}
                             
 proc main() void {
-    var value int = readInt();                             
-    writeln(square(value));
-    var i int;
-    for i=1 to 100 by 2 {
-        while value!=3 {
+    //var value int = readInt();
+    //writeln(square(value));
+    //var i int;
+    //for i=1 to 100 by 2 {
+    //    while value!=3 {
             // ....
-        }
-    }
+    //    }
+    //}
     
-    i = (i+2)*2;
+    //i = (i+2)*2;
 } 

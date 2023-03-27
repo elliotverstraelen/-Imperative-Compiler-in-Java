@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Expr {
-    private final String type; // Type of expression
+    public final String type; // Type of expression
 
     public Expr(String type) {
         this.type = type;
@@ -14,9 +14,9 @@ public class Expr {
 }
 
 class BinaryExpr extends Expr {
-    private final Expr left; // Left expression
-    private final Expr right; // Right expression
-    private final Lexer.Token operator; // Operator
+    public final Expr left; // Left expression
+    public final Expr right; // Right expression
+    public final Lexer.Token operator; // Operator
 
     public BinaryExpr(Expr left, Expr right, Lexer.Token operator) {
         super("BinaryExpr");
@@ -27,7 +27,7 @@ class BinaryExpr extends Expr {
 }
 
 class IntegerExpr extends Expr {
-    private final int value; // Value of the integer
+    public final int value; // Value of the integer
 
     public IntegerExpr(int value) {
         super("IntegerExpr");
@@ -36,7 +36,7 @@ class IntegerExpr extends Expr {
 }
 
 class RealExpr extends Expr {
-    private final double value; // Value of the real
+    public final double value; // Value of the real
 
     public RealExpr(double value) {
         super("RealExpr");
@@ -45,7 +45,7 @@ class RealExpr extends Expr {
 }
 
 class BooleanExpr extends Expr {
-    private final boolean value; // Value of the boolean
+    public final boolean value; // Value of the boolean
 
     public BooleanExpr(boolean value) {
         super("BooleanExpr");
@@ -54,7 +54,7 @@ class BooleanExpr extends Expr {
 }
 
 class StringExpr extends Expr {
-    private final String value; // Value of the string
+    public final String value; // Value of the string
 
     public StringExpr(String value) {
         super("StringExpr");
@@ -63,7 +63,7 @@ class StringExpr extends Expr {
 }
 
 class IdentifierExpr extends Expr {
-    private final String identifier; // Identifier of the variable
+    public final String identifier; // Identifier of the variable
 
     public IdentifierExpr(String identifier) {
         super("IdentifierExpr");
@@ -72,19 +72,21 @@ class IdentifierExpr extends Expr {
 }
 
 class ArrayExpr extends Expr {
-    private final ArrayList<Expr> exprs; // Expressions describing the array
+    public final Type type; // Type of the elements of the array
+    public final ArrayList<Expr> content; // Content of the array
 
-    public ArrayExpr(ArrayList<Expr> exprs) {
+    public ArrayExpr(Type type, ArrayList<Expr> content) {
         super("ArrayExpr");
-        this.exprs = exprs;
+        this.type = type;
+        this.content = content;
     }
 }
 
 class RecordExpr extends Expr {
-    private final HashMap<String, Expr> fields; // Fields of the record
+    public ArrayList<RecordEntry> content; // Content of the record
 
-    public RecordExpr(HashMap<String, Expr> fields) {
-        super("RecordExpr");
-        this.fields = fields;
+    public RecordExpr(String type, ArrayList<RecordEntry> content) {
+        super(type);
+        this.content = content;
     }
 }

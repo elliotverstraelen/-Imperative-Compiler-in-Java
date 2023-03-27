@@ -5,15 +5,15 @@ import compiler.Lexer.Lexer;
 import java.util.ArrayList;
 
 public class Stmt {
-    private final Lexer.Token name;
+    public final Lexer.Token name;
     public Stmt(Lexer.Token name) {
         this.name = name;
     }
 }
 
 class CtrlStruct extends Stmt {
-    private final Expr condition;
-    private final Block body;
+    public final Expr condition;
+    public final Block body;
 
     public CtrlStruct(Lexer.Token name, Expr condition, Block body) {
         super(name);
@@ -23,7 +23,7 @@ class CtrlStruct extends Stmt {
 }
 
 class For extends CtrlStruct {
-    private final Expr step;
+    public final Expr step;
 
     public For(Lexer.Token name, Expr init, Expr end, Expr step, Block body) {
         // Condition represents the condition of the for loop as a binary expression
@@ -33,8 +33,8 @@ class For extends CtrlStruct {
 }
 
 class Assignment extends Stmt {
-    private final Object left; // left part of the assignment
-    private final Expr value; // right part of the assignment
+    public final Object left; // left part of the assignment
+    public final Expr value; // right part of the assignment
 
     public Assignment(Lexer.Token name, Object left, Expr value) {
         super(name);
@@ -45,8 +45,8 @@ class Assignment extends Stmt {
 
 class ProcCall extends Stmt {
     // Grammar : ProcCall -> identifier ( Exprs )
-    private final String identifier;
-    private final ArrayList<Expr> args;
+    public final String identifier;
+    public final ArrayList<Expr> args;
 
     public ProcCall(String identifier, ArrayList<Expr> args) {
         super(Lexer.Token.KEYWORD_PROC);
@@ -56,7 +56,7 @@ class ProcCall extends Stmt {
 }
 
 class Left extends Stmt {
-    private final String identifier;
+    public final String identifier;
 
     public Left(Lexer.Token name, String identifier) {
         super(name);
@@ -65,7 +65,7 @@ class Left extends Stmt {
 }
 
 class ArrayAccess extends Left {
-    private final Expr index;
+    public final Expr index;
 
     public ArrayAccess(Lexer.Token name, String identifier, Expr index) {
         super(name, identifier);
@@ -74,7 +74,7 @@ class ArrayAccess extends Left {
 }
 
 class RecordAccess extends Left {
-    private final String field;
+    public final String field;
 
     public RecordAccess(Lexer.Token name, String identifier, String field) {
         super(name, identifier);
@@ -83,7 +83,7 @@ class RecordAccess extends Left {
 }
 
 class Return extends Stmt {
-    private final Expr value;
+    public final Expr value;
 
     public Return(Expr value) {
         super(Lexer.Token.KEYWORD_RETURN);

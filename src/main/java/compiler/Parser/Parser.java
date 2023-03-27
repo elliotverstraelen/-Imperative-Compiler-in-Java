@@ -2,7 +2,6 @@ package compiler.Parser;
 import compiler.Lexer.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import static compiler.Lexer.Lexer.Token.*;
 
@@ -10,7 +9,7 @@ public class Parser {
     private final Lexer lexer; // Lexer for the parser
     private Symbol lookahead; // Lookahead symbol
 
-    private final ArrayList<Object> program; // Parsed program, as a list of record declarations, a list of variable declarations, and a list of procedures declarations
+    private final Program program; // Parsed program, as a list of record declarations, a list of variable declarations, and a list of procedures declarations
 
     static class ParserException extends Exception {
         public ParserException(String message) {
@@ -25,7 +24,7 @@ public class Parser {
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.lookahead = lexer.currentSymbol;
-        this.program = new ArrayList<>();
+        this.program = new Program(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         try {
             parseProgram();
         } catch (ParserException e) {
@@ -73,26 +72,27 @@ public class Parser {
         match(KEYWORD_RECORD);
         Symbol identifier = match(IDENTIFIER);
         match(SYMBOL_LEFT_BRACE);
-        ArrayList<Param> recordFields = parseRecordFields();
+        ArrayList<RecordEntry> recordFields = parseRecordFields();
         match(SYMBOL_RIGHT_BRACE);
         return new RecordT(identifier.getLexeme(), recordFields);
     }
 
     /**
      * Parses record fields
-     * Grammar: RecordFields -> RecordField , RecordFields | RecordField
+     * Grammar: RecordFields -> RecordField ; RecordFields | RecordField
      * @return ArrayList<Type> - List of record fields
      */
-    private ArrayList<Param> parseRecordFields() throws ParserException {
-        ArrayList<Param> recordFields = new ArrayList<>();
+    private ArrayList<RecordEntry> parseRecordFields() throws ParserException {
+        ArrayList<RecordEntry> recordFields = new ArrayList<>();
         String identifier = match(IDENTIFIER).getLexeme();
         Type type = parseType();
-        recordFields.add(new Param(identifier, type));
-        while (lookahead.getToken() == SYMBOL_COMMA) {
-            match(SYMBOL_COMMA);
+        recordFields.add(new RecordEntry(identifier, type.name, null));
+        match(SYMBOL_SEMICOLON);
+        while (lookahead.getToken() != SYMBOL_RIGHT_BRACE) {
             identifier = match(IDENTIFIER).getLexeme();
             type = parseType();
-            recordFields.add(new Param(identifier, type));
+            recordFields.add(new RecordEntry(identifier, type.name, null));
+            match(SYMBOL_SEMICOLON);
         }
         return recordFields;
     }
@@ -102,33 +102,17 @@ public class Parser {
      * Grammar : Type -> "int" | "real" | "bool" | "string" | "void" | identifier
      */
     private Type parseType() throws ParserException {
-        switch (lookahead.getToken()) {
-            case INTEGER -> {
-                match(INTEGER);
-                return new Type("int");
-            }
-            case REAL -> {
-                match(REAL);
-                return new Type("real");
-            }
-            case BOOLEAN -> {
-                match(BOOLEAN);
-                return new Type("bool");
-            }
-            case STRING -> {
-                match(STRING);
-                return new Type("string");
-            }
-            case VOID -> {
-                match(VOID);
-                return new Type("void");
-            }
-            case IDENTIFIER -> {
-                Symbol identifier = match(IDENTIFIER);
-                return new Type(identifier.getLexeme());
-            }
-            default -> throw new ParserException("Expected a type but got " + lookahead.getToken());
+        if (lookahead.getToken() == VOID) {
+            match(VOID);
+            return new Type("void");
         }
+        Symbol identifier = match(IDENTIFIER);
+        if (lookahead.getToken() == SYMBOL_LEFT_BRACKET) {
+            match(SYMBOL_LEFT_BRACKET);
+            match(SYMBOL_RIGHT_BRACKET);
+            return new Type(identifier.getLexeme() + "[]");
+        }
+        return new Type(identifier.getLexeme());
     }
 
     /**
@@ -142,7 +126,27 @@ public class Parser {
         String identifier = match(IDENTIFIER).getLexeme();
         Type type = parseType();
         match(SYMBOL_ASSIGN);
-        Expr value = parseExpr(null);
+        Expr value;
+        if (lookahead.getToken() == IDENTIFIER){
+            // Array or record declaration
+            String n = parseType().name;
+            boolean isArray = n.contains("[]");
+            if (!isArray && lookahead.getToken() == SYMBOL_LEFT_PARENTHESIS) {
+                // Record declaration
+                value = parseRecordAssignment(n);
+            } else if (isArray) {
+                // In the case of an array declaration, the value between brackets is the length of the array
+                match(SYMBOL_LEFT_PARENTHESIS);
+                int initialCapacity = Integer.parseInt(match(INTEGER).getLexeme());
+                String arrayType = type.name.substring(0, type.name.length() - 2);
+                value = new ArrayExpr(new Type(arrayType), new ArrayList<>(initialCapacity));
+                match(SYMBOL_RIGHT_PARENTHESIS);
+            } else {
+                value = parseExpr(null);
+            }
+        } else {
+            value = parseExpr(null);
+        }
         return new GeneralDecl(name, type, identifier, value);
     }
 
@@ -152,6 +156,7 @@ public class Parser {
      * @return ProcDecl - Procedure object
      */
     private ProcDecl parseProcDecl() throws ParserException {
+        match(KEYWORD_PROC);
         String identifier = match(IDENTIFIER).getLexeme();
         match(SYMBOL_LEFT_PARENTHESIS);
         ArrayList<Param> params = parseParams();
@@ -186,6 +191,7 @@ public class Parser {
     private Param parseParam() throws ParserException {
         String name = lookahead.getLexeme();
         Type type = parseType();
+        match(IDENTIFIER);
         return new Param(name, type);
     }
 
@@ -242,6 +248,9 @@ public class Parser {
                 } else {
                     return parseAssignment();
                 }
+            }
+            case KEYWORD_RETURN -> {
+                return parseReturn();
             }
             default -> throw new ParserException("Expected a statement but got " + lookahead.getToken());
         }
@@ -454,13 +463,15 @@ public class Parser {
                 }
             }
             case SYMBOL_LEFT_BRACKET -> {
-                return parseArray();
-            }
-            case SYMBOL_LEFT_BRACE -> {
-                return parseRecord();
+                return parseArray(null);
             }
             case IDENTIFIER -> {
-                match(IDENTIFIER);
+                Symbol id = match(IDENTIFIER);
+                switch (lookahead.getToken()){
+                    case SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL, KEYWORD_AND, KEYWORD_OR -> {
+                        return parseExpr(new IdentifierExpr(id.getLexeme()));
+                    }
+                }
                 if (lookahead.getToken() == SYMBOL_SEMICOLON){
                     return new IdentifierExpr(lookahead.getLexeme());
                 } else if (prec != null) {
@@ -488,9 +499,14 @@ public class Parser {
      * Grammar: Array -> "[" Exprs "]"
      * @return Expr - Array object
      */
-    private Expr parseArray() throws ParserException {
+    private Expr parseArray(Type type) throws ParserException {
+        if (type == null) {
+            match(SYMBOL_LEFT_BRACKET);
+            type = parseType();
+            match(SYMBOL_RIGHT_BRACKET);
+        }
         ArrayList<Expr> elements = processBrackets(SYMBOL_LEFT_BRACKET, SYMBOL_RIGHT_BRACKET);
-        return new ArrayExpr(elements);
+        return new ArrayExpr(type, elements);
     }
 
     private ArrayList<Expr> processBrackets(Lexer.Token symbolLeftBracket, Lexer.Token symbolRightBracket) throws ParserException {
@@ -508,24 +524,47 @@ public class Parser {
 
     /**
      * Parses a record
-     * Grammar: Record -> "{" Fields "}"
+     * Grammar: Record -> record "(" Fields ")"
      * @return Expr - Record object
      */
-    private Expr parseRecord() throws ParserException {
-        match(SYMBOL_LEFT_BRACE);
-        HashMap<String, Expr> fields = new HashMap<>();
-        while (lookahead.getToken() != SYMBOL_RIGHT_BRACE) {
-            String field = lookahead.getLexeme();
-            match(IDENTIFIER);
-            match(SYMBOL_EQUAL);
-            Expr value = parseExpr(null);
-            fields.put(field, value);
+    private Expr parseRecordAssignment(String record) throws ParserException {
+        match(SYMBOL_LEFT_PARENTHESIS);
+        RecordExpr newRecord = new RecordExpr(record, new ArrayList<>());
+        while(lookahead.getToken() != SYMBOL_RIGHT_PARENTHESIS) {
+            // Create a new record with the correct fields
+            String value = lookahead.getLexeme();
+            String type = findType(lookahead.getToken());
+            Expr subrecord = null;
+            if (type == null && !value.equals("int") && !value.equals("real") && !value.equals("boolean") && !value.equals("string") && !value.equals("[") && !value.equals("]")) {
+                // Could be a record
+                match(IDENTIFIER);
+                type = value;
+                subrecord = parseRecordAssignment(value);
+            }
+            // Put the value in the correct field (should be in order)
+            newRecord.content.add(new RecordEntry(value, type, subrecord));
+            match(lookahead.getToken());
             if (lookahead.getToken() == SYMBOL_COMMA) {
                 match(SYMBOL_COMMA);
             }
         }
-        match(SYMBOL_RIGHT_BRACE);
-        return new RecordExpr(fields);
+        match(SYMBOL_RIGHT_PARENTHESIS);
+        return newRecord;
+    }
+
+    /**
+     * Find the type associated with a token
+     * @param token - Token to find the type of
+     * @return String representation of the type (e.g. "int")
+     */
+    private String findType(Lexer.Token token) {
+        return switch (token) {
+            case INTEGER -> "int";
+            case REAL -> "real";
+            case BOOLEAN -> "boolean";
+            case STRING -> "string";
+            default -> null;
+        };
     }
 
     /**
@@ -543,5 +582,5 @@ public class Parser {
     /**
      * Returns the program obtained by the parsing
      */
-    public ArrayList<Object> getProgram() { return this.program; }
+    public Program getProgram() { return this.program; }
 }

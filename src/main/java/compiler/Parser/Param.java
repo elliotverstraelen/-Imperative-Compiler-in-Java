@@ -1,8 +1,8 @@
 package compiler.Parser;
 
-class Param {
-    private final String name;
-    private final Type type;
+public class Param {
+    public final String name;
+    public final Type type;
 
     public Param(String name, Type type) {
         this.name = name;
