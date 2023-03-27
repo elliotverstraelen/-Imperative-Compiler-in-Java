@@ -414,17 +414,44 @@ public class Parser {
             case REAL -> {
                 double value = Double.parseDouble(lookahead.getLexeme());
                 match(REAL);
-                return new RealExpr(value);
+                if (lookahead.getToken() == SYMBOL_SEMICOLON){
+                    return new RealExpr(value);
+                } else if (prec != null) {
+                    Lexer.Token operator = lookahead.getToken();
+                    match(operator);
+                    Expr right = parseExpr(new RealExpr(value));
+                    return parseExpr(new BinaryExpr(prec, right, operator));
+                } else {
+                    return parseExpr(new RealExpr(value));
+                }
             }
             case BOOLEAN -> {
                 boolean value = Boolean.parseBoolean(lookahead.getLexeme());
                 match(BOOLEAN);
-                return new BooleanExpr(value);
+                if (lookahead.getToken() == SYMBOL_SEMICOLON){
+                    return new BooleanExpr(value);
+                } else if (prec != null) {
+                    Lexer.Token operator = lookahead.getToken();
+                    match(operator);
+                    Expr right = parseExpr(new BooleanExpr(value));
+                    return parseExpr(new BinaryExpr(prec, right, operator));
+                } else {
+                    return parseExpr(new BooleanExpr(value));
+                }
             }
             case STRING -> {
                 String value = lookahead.getLexeme();
                 match(STRING);
-                return new StringExpr(value);
+                if (lookahead.getToken() == SYMBOL_SEMICOLON){
+                    return new StringExpr(value);
+                } else if (prec != null) {
+                    Lexer.Token operator = lookahead.getToken();
+                    match(operator);
+                    Expr right = parseExpr(new StringExpr(value));
+                    return parseExpr(new BinaryExpr(prec, right, operator));
+                } else {
+                    return parseExpr(new StringExpr(value));
+                }
             }
             case SYMBOL_LEFT_BRACKET -> {
                 return parseArray();
@@ -434,7 +461,16 @@ public class Parser {
             }
             case IDENTIFIER -> {
                 match(IDENTIFIER);
-                return new IdentifierExpr(lookahead.getLexeme());
+                if (lookahead.getToken() == SYMBOL_SEMICOLON){
+                    return new IdentifierExpr(lookahead.getLexeme());
+                } else if (prec != null) {
+                    Lexer.Token operator = lookahead.getToken();
+                    match(operator);
+                    Expr right = parseExpr(new IdentifierExpr(lookahead.getLexeme()));
+                    return parseExpr(new BinaryExpr(prec, right, operator));
+                } else {
+                    return parseExpr(new IdentifierExpr(lookahead.getLexeme()));
+                }
             }
             case SYMBOL_RIGHT_PARENTHESIS -> {
                 match(SYMBOL_RIGHT_PARENTHESIS);
