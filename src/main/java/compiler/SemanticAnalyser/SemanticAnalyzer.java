@@ -223,10 +223,29 @@ public class SemanticAnalyzer implements ASTVisitor {
         }
     }
 
-    public void visit(CtrlStruct ifStmt) {
+    public void visit(CtrlStruct ifStmt) throws SemanticException {
         // Perform semantic analysis for if statements here.
         // (e.g., checking for proper condition types, analyzing then and else blocks, etc.)
-        //TODO
+        // Analyze the condition expression
+
+        Expr condition = ifStmt.getCondition();
+        condition.accept(this);
+
+        // Ensure the condition expression is of type boolean
+        Type conditionType = condition.getType();
+        if(!conditionType.getName().equals("boolean")) {
+            throw new SemanticException("Invalid if condition: expected boolean, found " + conditionType);
+        }
+
+        // Analyze th then block
+        Block thenBlock = ifStmt.getBody();
+        thenBlock.accept(this);
+
+        // Analyze the else block (if present)
+        Block elseBlock = ifStmt.getElseBody();
+        if (elseBlock != null){
+            elseBlock.accept(this);
+        }
     }
 
     public void visit(For forStmt) throws SemanticException {

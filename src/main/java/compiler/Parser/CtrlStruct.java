@@ -4,12 +4,20 @@ import compiler.Lexer.Lexer;
 
 public class CtrlStruct extends Stmt {
     protected final Expr condition;
-    protected final Block body;
+    protected final Block thenBody;
+    protected final Block elseBody;
 
     public CtrlStruct(Lexer.Token name, Expr condition, Block body) {
         super(name);
         this.condition = condition;
-        this.body = body;
+        this.thenBody = body;
+        this.elseBody = null;
+    }
+    public CtrlStruct(Lexer.Token name, Expr condition, Block thenBody, Block elseBody) {
+        super(name);
+        this.condition = condition;
+        this.thenBody = thenBody;
+        this.elseBody = elseBody;
     }
 
     public Expr getCondition() {
@@ -17,6 +25,9 @@ public class CtrlStruct extends Stmt {
     }
 
     public Block getBody() {
-        return body;
+        return thenBody;
+    }
+    public Block getElseBody() {
+        return elseBody;
     }
 }
