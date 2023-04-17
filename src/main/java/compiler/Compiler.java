@@ -4,6 +4,7 @@ import compiler.Lexer.Symbol;
 import compiler.Parser.Parser;
 import compiler.Parser.Program;
 import compiler.SemanticAnalyser.SemanticAnalyzer;
+import compiler.SemanticAnalyser.SemanticException;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -87,14 +88,14 @@ public class Compiler {
         parseInput(input);
     }
 
-    public void semanticAnalysis(Program program) {
+    public void semanticAnalysis(Program program) throws SemanticException {
         System.out.println("Performing semantic analysis...");
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
         program.accept(semanticAnalyzer);
     }
     
 
-    public static void main(String[] args) throws Parser.ParserException {
+    public static void main(String[] args) throws Parser.ParserException, SemanticException {
         Compiler compiler = new Compiler();
         compiler.lexer(args);
         compiler.parser();

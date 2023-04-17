@@ -1,6 +1,7 @@
 package compiler.Parser;
 
 import compiler.Lexer.Lexer;
+import compiler.SemanticAnalyser.SemanticException;
 
 public abstract class GeneralDecl implements ASTNode {
     //public final Lexer.Token name; // Const, Record, Var or Val
@@ -28,7 +29,7 @@ public abstract class GeneralDecl implements ASTNode {
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
     }
 }

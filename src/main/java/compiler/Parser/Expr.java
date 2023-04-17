@@ -1,6 +1,7 @@
 package compiler.Parser;
 
 import compiler.Lexer.Lexer;
+import compiler.SemanticAnalyser.SemanticException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public class Expr implements ASTNode{
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
     }
 }
@@ -31,7 +32,7 @@ class BinaryExpr extends Expr {
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
         left.accept(visitor);
         right.accept(visitor);
@@ -93,7 +94,7 @@ class ArrayExpr extends Expr {
         this.content = content;
     }
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
         for (Expr e : content) {
             e.accept(visitor);
@@ -109,7 +110,7 @@ class RecordExpr extends Expr {
         this.content = content;
     }
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
         for (RecordEntry entry : content) {
             entry.accept(visitor);

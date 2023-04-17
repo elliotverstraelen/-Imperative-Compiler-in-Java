@@ -73,5 +73,4 @@ public class SemanticAnalyzer implements ASTVisitor {
     // Implement other visit methods for different AST nodes as needed
 }
 
-package compiler.SemanticAnalysis;
 

@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalyser.SemanticException;
+
 import java.util.ArrayList;
 import java.util.List;
 public class Program implements ASTNode {
@@ -16,7 +18,7 @@ public class Program implements ASTNode {
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
         for (GeneralDecl declaration : declarations) {
             declaration.accept(visitor);
