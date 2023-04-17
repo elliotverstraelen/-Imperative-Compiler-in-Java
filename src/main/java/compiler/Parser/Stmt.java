@@ -1,5 +1,6 @@
 package compiler.Parser;
 
+import compiler.Exceptions.SemanticException;
 import compiler.Lexer.Lexer;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class Stmt implements ASTNode{
         return name;
     }
 
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
     }
 }

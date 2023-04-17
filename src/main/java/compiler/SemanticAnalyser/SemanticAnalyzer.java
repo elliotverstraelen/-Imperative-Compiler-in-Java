@@ -1,7 +1,9 @@
 package compiler.SemanticAnalyser;
 
 import compiler.Exceptions.*;
+import compiler.Lexer.Lexer;
 import compiler.Parser.*;
+import java.util.ArrayList;
 
 import java.util.HashMap;
 
@@ -93,7 +95,7 @@ public class SemanticAnalyzer implements ASTVisitor {
     public void visit(GeneralDecl decl, String declExpr) throws SemanticException {
         String declName = decl.getIdentifier();
         String declType = decl.getType().toString();
-        String valueType = decl.getValue().getType();
+        String valueType = decl.getValue().getType().toString(); // Added .toString() to solve the issue
         if (symbolTable.containsKey(declName)){
             throw new DuplicateVariableNameException("Duplicate " + declExpr + " name : " + declName);
         }
@@ -171,7 +173,7 @@ public class SemanticAnalyzer implements ASTVisitor {
      * @param stmt: Stmt node to visit
      */
     @Override
-    public void visit(Stmt stmt) {
+    public void visit(Stmt stmt) throws SemanticException {
         // Different types of statements require different semantic analysis.
         if (stmt instanceof For) {
             visit((For) stmt);
@@ -191,18 +193,34 @@ public class SemanticAnalyzer implements ASTVisitor {
         // (e.g., checking for uninitialized variables, type compatibility, etc.)
         String assignName = String.valueOf(assignStmt.getName());
     }
-    public void visit(ArrayAccess arrayAccess) {
+    public void visit(ArrayAccess arrayAccess, Type arrayExprType) throws SemanticException {
         // Perform semantic analysis for array expressions here.
         // (e.g., checking for proper index types, bounds, etc.)
 
         // Perform semantic analysis for ArrayAccess
-        visit(arrayAccess.getIndex());
+        // Analyze the array expression and the index expression
+        arrayAccess.getIndex().accept(this);
+
+        // Ensure the array expression is an array type
+        if (!arrayExprType.getName().endsWith("[]")) {
+            throw new SemanticException("Invalid array access: " + arrayExprType + " is not an array type.");
+        }
+
+        // Ensure the index expression is an integer type
+        Type indexExprType = arrayAccess.getIndex().getType();
+        if (!indexExprType.getName().equals("int")) {
+            throw new SemanticException("Invalid array access: Index expression type should be int, found " + indexExprType);
+        }
+
     }
 
-    public void visit(ReturnStmt returnStmt) {
+    public void visit(ReturnStmt returnStmt) throws SemanticException {
         // Perform semantic analysis for return statements here.
         // (e.g., checking for correct return type, scope, etc.)
-        //TODO
+        Expr returnValue = returnStmt.getValue();
+        if (returnValue != null) {
+            returnValue.accept(this);
+        }
     }
 
     public void visit(CtrlStruct ifStmt) {
@@ -211,16 +229,46 @@ public class SemanticAnalyzer implements ASTVisitor {
         //TODO
     }
 
-    public void visit(For whileStmt) {
+    public void visit(For forStmt) throws SemanticException {
         // Perform semantic analysis for while statements here.
         // (e.g., checking for proper condition types, analyzing loop body, etc.)
-        //TODO
+
+        // Analyze the loop condition expression
+        Expr loopCondition = forStmt.getCondition();
+        loopCondition.accept(this);
+
+        // Analyze th loop step expression
+        Expr loopStep = forStmt.getStep();
+        loopStep.accept(this);
+
+        // Analyze the loop body block
+        Block loopBody = forStmt.getBody();
+        loopBody.accept(this);
     }
 
-    public void visit(ProcCall callStmt) {
+    public void visit(ProcCall callStmt) throws SemanticException {
         // Perform semantic analysis for call statements here.
         // (e.g., checking for proper arguments, procedure existence, etc.)
-        //TODO
+
+        // Check if the procedure exists
+        String identifier = callStmt.getIdentifier();
+        if(!symbolTable.containsKey(identifier)){
+            throw new SemanticException("Undefined procedure: " + identifier);
+        }
+        Type procType = symbolTable.get(identifier);
+
+        // Ensure the procedure has a "Proc" type
+        if(!procType.getName().equals("Proc")) {
+            throw new SemanticException("Invalid procedure call: " + identifier + " is not a procedure.");
+        }
+
+        // Analyze the procedure arguments
+        ArrayList<Expr> arguments = callStmt.getArgs();
+        for (Expr arg : arguments) {
+            arg.accept(this);
+        }
+
+        // TODO: Check the types and number of the arguments against the procedure declaration
     }
 
 
@@ -229,7 +277,7 @@ public class SemanticAnalyzer implements ASTVisitor {
      * @param expr: Expr node to visit
      */
     @Override
-    public void visit(Expr expr) {
+    public void visit(Expr expr) throws SemanticException {
         // Different types of expressions require different semantic analysis.
         if (expr instanceof ArrayExpr) {
             visit((ArrayExpr) expr);
@@ -249,51 +297,68 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((StringExpr) expr);
         } // Continue with other expression types as needed
     }
-    public void visit(ArrayExpr arrayExpr) {
+    public void visit(ArrayExpr arrayExpr) throws SemanticException {
         // Perform semantic analysis for array expressions here.
         // (e.g., checking for proper index types, bounds, etc.)
-        //TODO
+        // Analyze the elements of the Array
+        for (Expr e : arrayExpr.getContent()){
+            e.accept(this);
+        }
+        // Ensure that all elements of the array are of the expected type
+        Type expectedType = arrayExpr.getType();
+        for (Expr e : arrayExpr.getContent()) {
+            if (!e.getType().equals(expectedType)) {
+                throw new SemanticException("Array element type mismatch: Expected " + expectedType + ", found " + e.getType());
+            }
+        }
     }
 
-    public void visit(BinaryExpr booleanExpr) {
-        // Perform semantic analysis for boolean expressions here.
-        // (e.g., checking for proper boolean values, etc.)
-        //TODO
+    public void visit(BinaryExpr binaryExpr) throws SemanticException {
+        // Analyse left & right expressions
+        Expr leftExpr = binaryExpr.getLeft();
+        Expr rightExpr = binaryExpr.getRight();
+        leftExpr.accept(this);
+        rightExpr.accept(this);
+
+        // ensure the left and right expressions have compatible types
+        Lexer.Token operator = binaryExpr.getOperator();
     }
     public void visit(BooleanExpr booleanExpr) {
-        // Perform semantic analysis for boolean expressions here.
-        // (e.g., checking for proper boolean values, etc.)
-        //TODO
+        // Noting to check for boolean literals
     }
 
-    public void visit(IdentifierExpr identifierExpr) {
-        // Perform semantic analysis for identifier expressions here.
-        // (e.g., checking for undeclared identifiers, proper use, etc.)
-        //TODO
+    public void visit(IdentifierExpr identifierExpr) throws SemanticException {
+        // Check if the identifier is delcared
+        String identifier = identifierExpr.getIdentifier();
+        if(!symbolTable.containsKey(identifier)) {
+            throw new SemanticException("Undeclared identifier: " + identifier);
+        }
+        // Get the type of the identifier from the symbol table
+        identifierExpr.setType(symbolTable.get(identifier));
     }
 
     public void visit(IntegerExpr integerExpr) {
-        // Perform semantic analysis for integer expressions here.
-        // (e.g., checking for proper integer values, etc.)
-        //TODO
+        // For integer literals, the type is always int.
+        // Could check if value of within the valid range for int !!!
+        // Since the IntegerExpr class represents integer litterals, no need for additional semantic analysis
     }
 
     public void visit(RealExpr realExpr) {
         // Perform semantic analysis for real expressions here.
         // (e.g., checking for proper real values, etc.)
-        //TODO
+        // no need for semantic analysis
     }
 
     public void visit(RecordExpr recordExpr) {
         // Perform semantic analysis for record expressions here.
         // (e.g., checking for proper record field access, etc.)
-        //TODO
+        // no need for semantic analysis
     }
 
     public void visit(StringExpr stringExpr) {
         // Perform semantic analysis for string expressions here.
         // (e.g., checking for proper string values, etc.)
-        //TODO
+        // no need for semantic analysis
     }
 
     /**
@@ -301,8 +366,11 @@ public class SemanticAnalyzer implements ASTVisitor {
      * @param block: Block node to visit
      */
     @Override
-    public void visit(Block block) {
-        //TODO
+    public void visit(Block block) throws SemanticException {
+        // Analyze each statement in the block
+        for (Stmt stmt : block.getStatements()){
+            stmt.accept(this);
+        }
     }
 
     // Implement other visit methods for different AST nodes as needed

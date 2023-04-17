@@ -7,8 +7,14 @@ public class IntegerExpr extends Expr {
         super("int");
         this.value = value;
     }
+    @Override
+    public Type getType() {
+        return super.getType();
+    }
+
 
     public int getValue() {
         return value;
     }
+
 }

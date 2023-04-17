@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.Exceptions.SemanticException;
+
 import java.util.ArrayList;
 
 public class Block {
@@ -11,7 +13,7 @@ public class Block {
     public ArrayList<Stmt> getStatements() {
         return statements;
     }
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
         for (Stmt stmt : statements) {
             stmt.accept(visitor);

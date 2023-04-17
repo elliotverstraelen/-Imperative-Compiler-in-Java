@@ -18,10 +18,10 @@ public interface ASTVisitor {
 
     void visit(Param param) throws SemanticException;
 
-    void visit(Stmt stmt);
+    void visit(Stmt stmt) throws SemanticException;
 
-    void visit(Expr expr);
+    void visit(Expr expr) throws SemanticException;
 
-    void visit(Block block);
+    void visit(Block block) throws SemanticException;
     // Add other visit methods for other ASTNode types
 }
