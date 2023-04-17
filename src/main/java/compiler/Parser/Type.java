@@ -6,4 +6,8 @@ public class Type {
     public Type(String name) {
         this.name = name;
     }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
+    }
 }

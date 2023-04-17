@@ -2,17 +2,34 @@ package compiler.Parser;
 
 import compiler.Lexer.Lexer;
 
-public class GeneralDecl {
-    public final Lexer.Token name; // Const, Record, Var or Val
-    public final Type type; // Type of the variable
-    public final String identifier; // Identifier of the variable
+public abstract class GeneralDecl implements ASTNode {
+    //public final Lexer.Token name; // Const, Record, Var or Val
+    protected Type type; // Type of the variable
+    protected String identifier; // Identifier of the variable
 
-    public Expr value; // Value of the variable
+    protected Expr value; // Value of the variable
 
-    public GeneralDecl(Lexer.Token name, Type type, String identifier, Expr value) {
-        this.name = name;
-        this.type = type;
+    public GeneralDecl(Type type, String identifier, Expr value) {
         this.identifier = identifier;
+        this.type = type;
         this.value = value;
     }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public Expr getValue() {
+        return value;
+    }
+
+    @Override
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
+    }
 }
+

@@ -5,11 +5,16 @@ import compiler.Lexer.Lexer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Expr {
+public class Expr implements ASTNode{
     public final String type; // Type of expression
 
     public Expr(String type) {
         this.type = type;
+    }
+
+    @Override
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }
 
@@ -23,6 +28,13 @@ class BinaryExpr extends Expr {
         this.left = left;
         this.right = right;
         this.operator = operator;
+    }
+
+    @Override
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
+        left.accept(visitor);
+        right.accept(visitor);
     }
 }
 
@@ -80,6 +92,13 @@ class ArrayExpr extends Expr {
         this.type = type;
         this.content = content;
     }
+    @Override
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
+        for (Expr e : content) {
+            e.accept(visitor);
+        }
+    }
 }
 
 class RecordExpr extends Expr {
@@ -88,5 +107,12 @@ class RecordExpr extends Expr {
     public RecordExpr(String type, ArrayList<RecordEntry> content) {
         super(type);
         this.content = content;
+    }
+    @Override
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
+        for (RecordEntry entry : content) {
+            entry.accept(visitor);
+        }
     }
 }

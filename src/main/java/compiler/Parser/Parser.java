@@ -11,7 +11,7 @@ public class Parser {
 
     private final Program program; // Parsed program, as a list of record declarations, a list of variable declarations, and a list of procedures declarations
 
-    static class ParserException extends Exception {
+    public static class ParserException extends Exception {
         public ParserException(String message) {
             super(message);
         }
@@ -24,7 +24,7 @@ public class Parser {
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.lookahead = lexer.currentSymbol;
-        this.program = new Program(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        this.program = new Program(new ArrayList<>());
         try {
             parseProgram();
         } catch (ParserException e) {
@@ -51,12 +51,12 @@ public class Parser {
      * Parses the program
      * A program consists of a list of record declarations, a list of variable declarations, and a list of procedures declarations
      */
-    private void parseProgram() throws ParserException {
+    public void parseProgram() throws ParserException {
         while (lookahead.getToken() != EOF) {
             switch (lookahead.getToken()) {
-                case KEYWORD_RECORD -> this.program.add(parseRecordDecl());
-                case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.add(parseGeneralDecl());
-                case KEYWORD_PROC -> this.program.add(parseProcDecl());
+                case KEYWORD_RECORD -> this.program.addDeclaration(parseRecordDecl());
+                case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.addDeclaration(parseGeneralDecl());
+                case KEYWORD_PROC -> this.program.addDeclaration(parseProcDecl());
                 case SYMBOL_SEMICOLON -> match(SYMBOL_SEMICOLON);
                 default -> throw new ParserException("Expected a declaration but got " + lookahead.getToken());
             }
@@ -147,7 +147,22 @@ public class Parser {
         } else {
             value = parseExpr(null);
         }
-        return new GeneralDecl(name, type, identifier, value);
+        GeneralDecl generalDecl;
+        switch (name) {
+            case KEYWORD_CONST:
+                generalDecl = new ConstDecl(type, identifier, value);
+                break;
+            case KEYWORD_VAR:
+                generalDecl = new VarDecl(type, identifier, value);
+                break;
+            case KEYWORD_VAL:
+                generalDecl = new ValDecl(type, identifier, value);
+                break;
+            default:
+                throw new ParserException("Unexpected declaration type: " + name);
+        }
+        program.addDeclaration(generalDecl);
+        return generalDecl;
     }
 
     /**
@@ -163,7 +178,9 @@ public class Parser {
         match(SYMBOL_RIGHT_PARENTHESIS);
         Type type = parseType();
         Block block = parseBlock();
-        return new ProcDecl(identifier, params, type, block);
+        ProcDecl procDecl = new ProcDecl(type, identifier, params, block);
+        program.addDeclaration(procDecl);
+        return procDecl;
     }
 
     /**

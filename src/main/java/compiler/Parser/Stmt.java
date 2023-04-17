@@ -4,10 +4,14 @@ import compiler.Lexer.Lexer;
 
 import java.util.ArrayList;
 
-public class Stmt {
+public class Stmt implements ASTNode{
     public final Lexer.Token name;
     public Stmt(Lexer.Token name) {
         this.name = name;
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }
 
