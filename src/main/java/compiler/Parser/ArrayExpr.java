@@ -9,7 +9,7 @@ public class ArrayExpr extends Expr {
     protected final ArrayList<Expr> content; // Content of the array
 
     public ArrayExpr(Type type, ArrayList<Expr> content) {
-        super(type.getName()+"[]");
+        super("ArrayExpr");
         this.type = type;
         this.content = content;
     }

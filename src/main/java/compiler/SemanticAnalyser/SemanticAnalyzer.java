@@ -1,12 +1,10 @@
 package compiler.SemanticAnalyser;
 
 import compiler.Exceptions.*;
-import compiler.Lexer.Lexer;
 import compiler.Parser.*;
 import java.util.ArrayList;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class SemanticAnalyzer implements ASTVisitor {
 
@@ -95,14 +93,20 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     public void visit(GeneralDecl decl, String declExpr) throws SemanticException {
         String declName = decl.getIdentifier();
-        String declType = decl.getType().toString();
-        String valueType = decl.getValue().getType();
+        String declType = decl.getValue().toString();
+        if (declType.equals("BinaryExpr")){
+            declType = visit((BinaryExpr) decl.getValue());
+        }
+        String valueType = decl.getValue().getType().toString();
+        if (valueType.equals("BinaryExpr")){
+            valueType = visit((BinaryExpr) decl.getValue());
+        }
         // Check if variable name is already in symbol table
         if (symbolTable.containsKey(declName)){
             throw new DuplicateVariableNameException("Duplicate " + declExpr + " name : " + declName);
         }
         // Check if variable type is valid (except for arrays and binary expressions)
-        if (declType.equals("ArrayExpr") || valueType.equals("BinaryExpr")) {
+        if (declType.equals("ArrayExpr") || declType.equals("BinaryExpr")) {
             // Check if variable type matches value type, if it is an identifier, check if the identifier type matches the variable type
             if (valueType.equals("IdentifierExpr")) {
                 String identifierType = symbolTable.get(decl.getValue().toString()).toString();
@@ -116,7 +120,7 @@ public class SemanticAnalyzer implements ASTVisitor {
                     throw new SemanticException("Variable " + declName + " type does not match value type. Found " +
                             valueType + " expected " + declType + ".");
                 }
-            } else if (!declType.equals(valueType)){
+            } else if (!decl.getType().getName().contains(valueType)){
                 throw new SemanticException("Variable " + declName + " type does not match value type. Found " +
                         valueType + " expected " + declType + ".");
             }
@@ -216,10 +220,9 @@ public class SemanticAnalyzer implements ASTVisitor {
         }
         String varType = symbolTable.get(identifier).toString();
         Expr assignValue = assignStmt.getValue();
-        if (assignValue instanceof BinaryExpr) {
-            BinaryExpr binary = (BinaryExpr) assignValue;
-            String rightType = binary.getRight().getType();
-            String leftType = binary.getLeft().getType();
+        if (assignValue instanceof BinaryExpr binary) {
+            String rightType = binary.getRight().getType().toString();
+            String leftType = binary.getLeft().getType().toString();
             if (!varType.equals(rightType)) {
                 throw new SemanticException("Variable " + identifier + " type does not match value type. Found " +
                         rightType + " expected " + varType + ".");
@@ -228,13 +231,13 @@ public class SemanticAnalyzer implements ASTVisitor {
                         leftType + " expected " + varType + ".");
             }
         } else if (assignValue instanceof IdentifierExpr) {
-            String assignType = assignValue.getType();
+            String assignType = assignValue.getType().toString();
             if (!varType.equals(assignType)) {
                 throw new SemanticException("Variable " + identifier + " type does not match value type. Found " +
                         assignType + " expected " + varType + ".");
             }
         } else {
-            String assignType = assignValue.getType();
+            String assignType = assignValue.getType().toString();
             if (!varType.equals(assignType)) {
                 throw new SemanticException("Variable " + identifier + " type does not match value type. Found " +
                         assignType + " expected " + varType + ".");
@@ -407,11 +410,11 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     public String visit(BinaryExpr binaryExpr) throws SemanticException {
         // Perform semantic analysis for binary expressions
-        String leftType = binaryExpr.getLeft().getType();
+        String leftType = binaryExpr.getLeft().getType().toString();
         if (leftType.equals("BinaryExpr")) {
             leftType = visit((BinaryExpr) binaryExpr.getLeft());
         }
-        String rightType = binaryExpr.getRight().getType();
+        String rightType = binaryExpr.getRight().getType().toString();
         if (rightType.equals("BinaryExpr")) {
             rightType = visit((BinaryExpr) binaryExpr.getRight());
         }
@@ -424,7 +427,10 @@ public class SemanticAnalyzer implements ASTVisitor {
             }
             leftType = symbolTable.get(identifier).toString();
         } else {
-            leftType = binaryExpr.getLeft().getType();
+            leftType = binaryExpr.getLeft().getType().toString();
+            if (leftType.equals("BinaryExpr")) {
+                leftType = visit((BinaryExpr) binaryExpr.getLeft());
+            }
         }
 
         // Identify the type of the right hand of the expression
@@ -435,7 +441,10 @@ public class SemanticAnalyzer implements ASTVisitor {
             }
             rightType = symbolTable.get(identifier).toString();
         } else {
-            rightType = binaryExpr.getRight().getType();
+            rightType = binaryExpr.getRight().getType().toString();
+            if (rightType.equals("BinaryExpr")) {
+                rightType = visit((BinaryExpr) binaryExpr.getLeft());
+            }
         }
 
         // Check if the two types are the same
@@ -445,42 +454,14 @@ public class SemanticAnalyzer implements ASTVisitor {
         return leftType;
     }
 
-    public void visit(BooleanExpr booleanExpr) {
-        // Noting to check for boolean literals
-    }
-
     public void visit(IdentifierExpr identifierExpr) throws SemanticException {
-        // Check if the identifier is delcared
+        // Check if the identifier is declared
         String identifier = identifierExpr.getIdentifier();
         if(!symbolTable.containsKey(identifier)) {
             throw new SemanticException("Undeclared identifier: " + identifier);
         }
         // Get the type of the identifier from the symbol table
         identifierExpr.setType(symbolTable.get(identifier));
-    }
-
-    public void visit(IntegerExpr integerExpr) {
-        // For integer literals, the type is always int.
-        // Could check if value of within the valid range for int !!!
-        // Since the IntegerExpr class represents integer litterals, no need for additional semantic analysis
-    }
-
-    public void visit(RealExpr realExpr) {
-        // Perform semantic analysis for real expressions here.
-        // (e.g., checking for proper real values, etc.)
-        // no need for semantic analysis
-    }
-
-    public void visit(RecordExpr recordExpr) {
-        // Perform semantic analysis for record expressions here.
-        // (e.g., checking for proper record field access, etc.)
-        // no need for semantic analysis
-    }
-
-    public void visit(StringExpr stringExpr) {
-        // Perform semantic analysis for string expressions here.
-        // (e.g., checking for proper string values, etc.)
-        // no need for semantic analysis
     }
 
     /**
