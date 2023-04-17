@@ -20,8 +20,9 @@ public class Program implements ASTNode {
     @Override
     public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
+        /* Removed as this is redundant
         for (GeneralDecl declaration : declarations) {
             declaration.accept(visitor);
-        }
+        }*/
     }
 }

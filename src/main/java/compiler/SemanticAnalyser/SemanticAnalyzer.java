@@ -70,6 +70,10 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((VarDecl) generalDecl);
         } else if (generalDecl instanceof ProcDecl){
             visit((ProcDecl) generalDecl);
+        } else if (generalDecl instanceof ConstDecl){
+            visit((ConstDecl) generalDecl);
+        } else if (generalDecl instanceof RecordT){
+            visit((RecordT) generalDecl);
         }
     }
 
@@ -85,6 +89,20 @@ public class SemanticAnalyzer implements ASTVisitor {
             throw new SemanticException("Duplicate variable name: " + varName);
         }
         symbolTable.put(varName, valDecl.getType());
+    }
+
+    /**
+     * Perform semantic analysis for constant declaration nodes
+     * @param constDecl: ConstDecl node to visit
+     * @throws SemanticException: If duplicate variable names are found
+     */
+    @Override
+    public void visit(ConstDecl constDecl) throws SemanticException {
+        String constName = constDecl.getIdentifier();
+        if (symbolTable.containsKey(constName)){
+            throw new SemanticException("Duplicate constant name: " + constName);
+        }
+        symbolTable.put(constName, constDecl.getType());
     }
 
     /**

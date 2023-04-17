@@ -153,7 +153,6 @@ public class Parser {
             case KEYWORD_VAL -> new ValDecl(type, identifier, value);
             default -> throw new ParserException("Unexpected declaration type: " + name);
         };
-        program.addDeclaration(generalDecl);
         return generalDecl;
     }
 
@@ -171,7 +170,6 @@ public class Parser {
         Type type = parseType();
         Block block = parseBlock();
         ProcDecl procDecl = new ProcDecl(type, identifier, params, block);
-        program.addDeclaration(procDecl);
         return procDecl;
     }
 

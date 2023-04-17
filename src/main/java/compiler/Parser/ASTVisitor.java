@@ -10,6 +10,8 @@ public interface ASTVisitor {
 
     void visit(ValDecl valDecl) throws SemanticException;
 
+    void visit(ConstDecl constDecl) throws SemanticException;
+
     void visit(VarDecl varDecl) throws SemanticException;
 
     void visit(ProcDecl procDecl) throws SemanticException;
