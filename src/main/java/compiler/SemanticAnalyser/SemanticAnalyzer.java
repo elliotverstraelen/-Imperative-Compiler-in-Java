@@ -471,8 +471,8 @@ public class SemanticAnalyzer implements ASTVisitor {
     @Override
     public void visit(Block block) throws SemanticException {
         // Analyze each statement in the block
-        for (Stmt stmt : block.getStatements()){
-            stmt.accept(this);
+        for (Object stmt : block.getStatements()) {
+            ((ASTNode) stmt).accept(this);
         }
     }
 }
