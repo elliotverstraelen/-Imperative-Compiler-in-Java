@@ -1,7 +1,6 @@
 package compiler.Parser;
 
-import compiler.Lexer.Lexer;
-import compiler.SemanticAnalyser.SemanticException;
+import compiler.Exceptions.SemanticException;
 
 public abstract class GeneralDecl implements ASTNode {
     //public final Lexer.Token name; // Const, Record, Var or Val

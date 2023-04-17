@@ -1,6 +1,6 @@
 package compiler.Parser;
 
-import compiler.SemanticAnalyser.SemanticException;
+import compiler.Exceptions.SemanticException;
 
 import java.util.ArrayList;
 import java.util.List;

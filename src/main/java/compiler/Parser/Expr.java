@@ -1,7 +1,7 @@
 package compiler.Parser;
 
 import compiler.Lexer.Lexer;
-import compiler.SemanticAnalyser.SemanticException;
+import compiler.Exceptions.SemanticException;
 
 import java.util.ArrayList;
 
@@ -21,7 +21,7 @@ public class Expr implements ASTNode{
     }
 }
 
-class BinaryExpr extends Expr {
+public class BinaryExpr extends Expr {
     protected final Expr left; // Left expression
     protected final Expr right; // Right expression
     protected final Lexer.Token operator; // Operator
@@ -49,7 +49,7 @@ class BinaryExpr extends Expr {
     }
 }
 
-class IntegerExpr extends Expr {
+public class IntegerExpr extends Expr {
     protected final int value; // Value of the integer
 
     public IntegerExpr(int value) {
@@ -62,7 +62,7 @@ class IntegerExpr extends Expr {
     }
 }
 
-class RealExpr extends Expr {
+public class RealExpr extends Expr {
     protected final double value; // Value of the real
 
     public RealExpr(double value) {
@@ -75,7 +75,7 @@ class RealExpr extends Expr {
     }
 }
 
-class BooleanExpr extends Expr {
+public class BooleanExpr extends Expr {
     public final boolean value; // Value of the boolean
 
     public BooleanExpr(boolean value) {
@@ -88,7 +88,7 @@ class BooleanExpr extends Expr {
     }
 }
 
-class StringExpr extends Expr {
+public class StringExpr extends Expr {
     protected final String value; // Value of the string
 
     public StringExpr(String value) {
@@ -101,7 +101,7 @@ class StringExpr extends Expr {
     }
 }
 
-class IdentifierExpr extends Expr {
+public class IdentifierExpr extends Expr {
     protected final String identifier; // Identifier of the variable
 
     public IdentifierExpr(String identifier) {
@@ -114,7 +114,7 @@ class IdentifierExpr extends Expr {
     }
 }
 
-class ArrayExpr extends Expr {
+public class ArrayExpr extends Expr {
     protected final Type type; // Type of the elements of the array
     protected final ArrayList<Expr> content; // Content of the array
 
@@ -136,7 +136,7 @@ class ArrayExpr extends Expr {
     }
 }
 
-class RecordExpr extends Expr {
+public class RecordExpr extends Expr {
     protected final ArrayList<RecordEntry> content; // Content of the record
 
     public RecordExpr(String type, ArrayList<RecordEntry> content) {

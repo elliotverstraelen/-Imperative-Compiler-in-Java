@@ -1,5 +1,6 @@
 package compiler.SemanticAnalyser;
 
+import compiler.Exceptions.*;
 import compiler.Parser.*;
 
 import java.util.HashMap;
@@ -9,7 +10,7 @@ public class SemanticAnalyzer implements ASTVisitor {
     // To perform semantic analysis, we need to check for duplicate field names. We can do this by keeping track of this with a hashset
     HashMap<String, Type> symbolTable;
 
-    /**
+    /*
      * Constructor for SemanticAnalyzer
      */
     public SemanticAnalyzer(){
@@ -19,14 +20,14 @@ public class SemanticAnalyzer implements ASTVisitor {
     /**
      * Visit method for RecordEntry nodes
      * @param recordEntry: RecordEntry node
-     * @throws SemanticException: If duplicate field names are found
+     * @throws DuplicateFieldException : If duplicate field names are found
      */
     @Override
-    public void visit(RecordEntry recordEntry) throws SemanticException {
+    public void visit(RecordEntry recordEntry) throws DuplicateFieldException {
         // Perform semantic analysis for RecordEntry, duplicate field names
         String fieldName = recordEntry.getIdentifier();
         if (symbolTable.containsKey(fieldName)){
-            throw new SemanticException("Duplicate field name: " + fieldName);
+            throw new DuplicateFieldException("Duplicate field name: " + fieldName);
         }
         symbolTable.put(fieldName, recordEntry.getType());
     }
@@ -34,13 +35,13 @@ public class SemanticAnalyzer implements ASTVisitor {
     /**
      * Perform semantic analysis for RecordT nodes
      * @param recordT: RecordT node to visit
-     * @throws SemanticException: If duplicate record type names are found
+     * @throws DuplicateRecordTypeException: If duplicate record type names are found
      */
     @Override
-    public void visit(RecordT recordT) throws SemanticException {
+    public void visit(RecordT recordT) throws DuplicateRecordTypeException {
         String recordTypeName = recordT.getIdentifier();
         if (symbolTable.containsKey(recordTypeName)){
-            throw new SemanticException("Duplicate record type name: " + recordTypeName);
+            throw new DuplicateRecordTypeException("Duplicate record type name: " + recordTypeName);
         }
         symbolTable.put(recordTypeName, recordT.getType());
     }
@@ -153,7 +154,7 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(Type type) {
-        //TODO
+        // Type nodes do not require semantic analysis, as they are used for type checking.
     }
 
     /**
@@ -162,8 +163,43 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(Stmt stmt) {
+        // Different types of statements require different semantic analysis.
+        if (stmt instanceof For) {
+            visit((For) stmt);
+        } else if (stmt instanceof CtrlStruct) {
+            visit((CtrlStruct) stmt);
+        } else if (stmt instanceof ProcCall) {
+            visit((ProcCall) stmt);
+        } // Continue with other statement types as needed
+        else if (stmt instanceof Assignment) {
+            visit((Assignment) stmt);
+        }
+    }
+
+    public void visit(Assignment assignStmt) {
+        // Perform semantic analysis for assignment statements here.
+        // (e.g., checking for uninitialized variables, type compatibility, etc.)
         //TODO
     }
+
+    public void visit(CtrlStruct ifStmt) {
+        // Perform semantic analysis for if statements here.
+        // (e.g., checking for proper condition types, analyzing then and else blocks, etc.)
+        //TODO
+    }
+
+    public void visit(For whileStmt) {
+        // Perform semantic analysis for while statements here.
+        // (e.g., checking for proper condition types, analyzing loop body, etc.)
+        //TODO
+    }
+
+    public void visit(ProcCall callStmt) {
+        // Perform semantic analysis for call statements here.
+        // (e.g., checking for proper arguments, procedure existence, etc.)
+        //TODO
+    }
+
 
     /**
      * Perform semantic analysis for expression nodes
@@ -171,6 +207,69 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(Expr expr) {
+        // Different types of expressions require different semantic analysis.
+        if (expr instanceof ArrayExpr) {
+            visit((ArrayExpr) expr);
+        } else if (expr instanceof BinaryExpr) {
+            visit((BinaryExpr) expr);
+        } else if (expr instanceof BooleanExpr) {
+            visit((BooleanExpr) expr);
+        } else if (expr instanceof IdentifierExpr) {
+            visit((IdentifierExpr) expr);
+        } else if (expr instanceof IntegerExpr) {
+            visit((IntegerExpr) expr);
+        } else if (expr instanceof RealExpr) {
+            visit((RealExpr) expr);
+        } else if (expr instanceof RecordExpr) {
+            visit((RecordExpr) expr);
+        } else if (expr instanceof StringExpr) {
+            visit((StringExpr) expr);
+        } // Continue with other expression types as needed
+    }
+    public void visit(ArrayExpr arrayExpr) {
+        // Perform semantic analysis for array expressions here.
+        // (e.g., checking for proper index types, bounds, etc.)
+        //TODO
+    }
+
+    public void visit(BinaryExpr booleanExpr) {
+        // Perform semantic analysis for boolean expressions here.
+        // (e.g., checking for proper boolean values, etc.)
+        //TODO
+    }
+    public void visit(BooleanExpr booleanExpr) {
+        // Perform semantic analysis for boolean expressions here.
+        // (e.g., checking for proper boolean values, etc.)
+        //TODO
+    }
+
+    public void visit(IdentifierExpr identifierExpr) {
+        // Perform semantic analysis for identifier expressions here.
+        // (e.g., checking for undeclared identifiers, proper use, etc.)
+        //TODO
+    }
+
+    public void visit(IntegerExpr integerExpr) {
+        // Perform semantic analysis for integer expressions here.
+        // (e.g., checking for proper integer values, etc.)
+        //TODO
+    }
+
+    public void visit(RealExpr realExpr) {
+        // Perform semantic analysis for real expressions here.
+        // (e.g., checking for proper real values, etc.)
+        //TODO
+    }
+
+    public void visit(RecordExpr recordExpr) {
+        // Perform semantic analysis for record expressions here.
+        // (e.g., checking for proper record field access, etc.)
+        //TODO
+    }
+
+    public void visit(StringExpr stringExpr) {
+        // Perform semantic analysis for string expressions here.
+        // (e.g., checking for proper string values, etc.)
         //TODO
     }
 

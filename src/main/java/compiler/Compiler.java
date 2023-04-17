@@ -4,7 +4,7 @@ import compiler.Lexer.Symbol;
 import compiler.Parser.Parser;
 import compiler.Parser.Program;
 import compiler.SemanticAnalyser.SemanticAnalyzer;
-import compiler.SemanticAnalyser.SemanticException;
+import compiler.Exceptions.SemanticException;
 
 import java.io.IOException;
 import java.io.StringReader;

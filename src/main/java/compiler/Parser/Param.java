@@ -1,6 +1,6 @@
 package compiler.Parser;
 
-import compiler.SemanticAnalyser.SemanticException;
+import compiler.Exceptions.SemanticException;
 
 public class Param implements ASTNode {
     protected final String name;

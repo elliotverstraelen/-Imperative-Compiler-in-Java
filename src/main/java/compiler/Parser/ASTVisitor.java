@@ -1,6 +1,6 @@
 package compiler.Parser;
 
-import compiler.SemanticAnalyser.SemanticException;
+import compiler.Exceptions.SemanticException;
 
 public interface ASTVisitor {
     void visit(Program program) throws SemanticException;
