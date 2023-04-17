@@ -86,12 +86,12 @@ public class Parser {
         ArrayList<RecordEntry> recordFields = new ArrayList<>();
         String identifier = match(IDENTIFIER).getLexeme();
         Type type = parseType();
-        recordFields.add(new RecordEntry(identifier, type.name, null));
+        recordFields.add(new RecordEntry(identifier, type.getName(), null));
         match(SYMBOL_SEMICOLON);
         while (lookahead.getToken() != SYMBOL_RIGHT_BRACE) {
             identifier = match(IDENTIFIER).getLexeme();
             type = parseType();
-            recordFields.add(new RecordEntry(identifier, type.name, null));
+            recordFields.add(new RecordEntry(identifier, type.getName(), null));
             match(SYMBOL_SEMICOLON);
         }
         return recordFields;
@@ -129,7 +129,7 @@ public class Parser {
         Expr value;
         if (lookahead.getToken() == IDENTIFIER){
             // Array or record declaration
-            String n = parseType().name;
+            String n = parseType().getName();
             boolean isArray = n.contains("[]");
             if (!isArray && lookahead.getToken() == SYMBOL_LEFT_PARENTHESIS) {
                 // Record declaration
@@ -138,7 +138,7 @@ public class Parser {
                 // In the case of an array declaration, the value between brackets is the length of the array
                 match(SYMBOL_LEFT_PARENTHESIS);
                 int initialCapacity = Integer.parseInt(match(INTEGER).getLexeme());
-                String arrayType = type.name.substring(0, type.name.length() - 2);
+                String arrayType = type.getName().substring(0, type.getName().length() - 2);
                 value = new ArrayExpr(new Type(arrayType), new ArrayList<>(initialCapacity));
                 match(SYMBOL_RIGHT_PARENTHESIS);
             } else {
@@ -147,20 +147,12 @@ public class Parser {
         } else {
             value = parseExpr(null);
         }
-        GeneralDecl generalDecl;
-        switch (name) {
-            case KEYWORD_CONST:
-                generalDecl = new ConstDecl(type, identifier, value);
-                break;
-            case KEYWORD_VAR:
-                generalDecl = new VarDecl(type, identifier, value);
-                break;
-            case KEYWORD_VAL:
-                generalDecl = new ValDecl(type, identifier, value);
-                break;
-            default:
-                throw new ParserException("Unexpected declaration type: " + name);
-        }
+        GeneralDecl generalDecl = switch (name) {
+            case KEYWORD_CONST -> new ConstDecl(type, identifier, value);
+            case KEYWORD_VAR -> new VarDecl(type, identifier, value);
+            case KEYWORD_VAL -> new ValDecl(type, identifier, value);
+            default -> throw new ParserException("Unexpected declaration type: " + name);
+        };
         program.addDeclaration(generalDecl);
         return generalDecl;
     }

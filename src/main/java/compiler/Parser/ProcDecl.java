@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class ProcDecl extends GeneralDecl {
     // Grammar : ProcDecl -> identifier ( Params ) Type Block
-    public final ArrayList<Param> params;
-    public final Block body;
+    protected final ArrayList<Param> params;
+    protected final Block body;
 
     public ProcDecl(Type returnType, String identifier, ArrayList<Param> params, Block body) {
         super(returnType, identifier, null);
@@ -15,6 +15,13 @@ public class ProcDecl extends GeneralDecl {
         this.body = body;
     }
 
+    public ArrayList<Param> getParams() {
+        return params;
+    }
+
+    public Block getBody() {
+        return body;
+    }
     @Override
     public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);

@@ -24,11 +24,11 @@ public class SemanticAnalyzer implements ASTVisitor {
     @Override
     public void visit(RecordEntry recordEntry) throws SemanticException {
         // Perform semantic analysis for RecordEntry, duplicate field names
-        String fieldName = recordEntry.identifier;
+        String fieldName = recordEntry.getIdentifier();
         if (symbolTable.containsKey(fieldName)){
             throw new SemanticException("Duplicate field name: " + fieldName);
         }
-        symbolTable.put(fieldName, recordEntry.type);
+        symbolTable.put(fieldName, recordEntry.getType());
     }
 
     /**
@@ -38,7 +38,7 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(RecordT recordT) throws SemanticException {
-        String recordTypeName = recordT.identifier;
+        String recordTypeName = recordT.getIdentifier();
         if (symbolTable.containsKey(recordTypeName)){
             throw new SemanticException("Duplicate record type name: " + recordTypeName);
         }
