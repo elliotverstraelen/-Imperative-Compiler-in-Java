@@ -583,7 +583,7 @@ public class Parser {
         match(KEYWORD_RETURN);
         Expr value = parseExpr(null);
         match(SYMBOL_SEMICOLON);
-        return new Return(value);
+        return new ReturnStmt(value);
     }
 
     /**

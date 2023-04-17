@@ -170,15 +170,30 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((CtrlStruct) stmt);
         } else if (stmt instanceof ProcCall) {
             visit((ProcCall) stmt);
-        } // Continue with other statement types as needed
-        else if (stmt instanceof Assignment) {
+        } else if (stmt instanceof ReturnStmt) {
+            visit((ReturnStmt) stmt);
+        } else if (stmt instanceof Assignment) {
             visit((Assignment) stmt);
         }
+        // Continue with other statement types as needed
     }
 
     public void visit(Assignment assignStmt) {
         // Perform semantic analysis for assignment statements here.
         // (e.g., checking for uninitialized variables, type compatibility, etc.)
+        //TODO
+    }
+    public void visit(ArrayAccess arrayAccess) {
+        // Perform semantic analysis for array expressions here.
+        // (e.g., checking for proper index types, bounds, etc.)
+
+        // Perform semantic analysis for ArrayAccess
+        visit(arrayAccess.getIndex());
+    }
+
+    public void visit(ReturnStmt returnStmt) {
+        // Perform semantic analysis for return statements here.
+        // (e.g., checking for correct return type, scope, etc.)
         //TODO
     }
 

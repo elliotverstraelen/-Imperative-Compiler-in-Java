@@ -30,18 +30,6 @@ class Left extends Stmt {
     }
 }
 
-class ArrayAccess extends Left {
-    protected final Expr index;
-
-    public ArrayAccess(Lexer.Token name, String identifier, Expr index) {
-        super(name, identifier);
-        this.index = index;
-    }
-    public Expr getIndex() {
-        return index;
-    }
-}
-
 class RecordAccess extends Left {
     protected final String field;
 
@@ -55,14 +43,3 @@ class RecordAccess extends Left {
     }
 }
 
-class Return extends Stmt {
-    protected final Expr value;
-
-    public Return(Expr value) {
-        super(Lexer.Token.KEYWORD_RETURN);
-        this.value = value;
-    }
-    public Expr getValue() {
-        return value;
-    }
-}
