@@ -322,6 +322,29 @@ public class SemanticAnalyzer implements ASTVisitor {
 
         // ensure the left and right expressions have compatible types
         Lexer.Token operator = binaryExpr.getOperator();
+        Type leftType = leftExpr.getType();
+        Type rightType = rightExpr.getType();
+
+        // Check the types based on the operator
+        switch (operator) {
+            case SYMBOL_PLUS, SYMBOL_MINUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE -> {
+                if (!leftType.equals(rightType) || !(leftType.getName().equals("int") || leftType.getName().equals("real"))) {
+                    throw new SemanticException("Type mismatch: " + operator + " expects operands of type int or real");
+                }
+            }
+            case SYMBOL_EQUAL, SYMBOL_NOT_EQUAL, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL -> {
+                if (!leftType.equals(rightType)) {
+                    throw new SemanticException("Type mismatch: " + operator + " expects operands of the same type");
+                }
+            }
+            case KEYWORD_AND, KEYWORD_OR -> {
+                if (!leftType.getName().equals("boolean") || !rightType.getName().equals("boolean")) {
+                    throw new SemanticException("Type mismatch: " + operator + " expects operands of type boolean");
+                }
+            }
+            default -> throw new SemanticException("Unsupported operator: " + operator);
+        }
+
     }
     public void visit(BooleanExpr booleanExpr) {
         // Noting to check for boolean literals
