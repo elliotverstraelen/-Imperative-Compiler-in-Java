@@ -64,6 +64,18 @@ public class Compiler {
         return parser.getProgram();
     }
 
+    public void analyseProgram(Program program) throws Parser.ParserException {
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+        System.out.println("Performing semantic analysis...");
+        try {
+            program.accept(semanticAnalyzer);
+        } catch (SemanticException e) {
+            System.out.println("Semantic analysis failed!");
+            System.out.println(e.getMessage());
+        }
+        System.out.println("Semantic analysis completed successfully!");
+    }
+
     public void parser() throws Parser.ParserException {
         System.out.println("Testing parser...");
         // Basic example of how to use the lexer
@@ -88,16 +100,32 @@ public class Compiler {
         parseInput(input);
     }
 
-    public void semanticAnalysis(Program program) {
-        System.out.println("Performing semantic analysis...");
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+    public void semanticAnalysis() throws Parser.ParserException {
+        System.out.println("Testing semantic Analysis...");
+        // Basic example of how to use the lexer
+        System.out.println("--Basic example--");
+        // Basic example
+        String input = "var x int = 2; var y int = ((3 + 4) * 5);";
+        Program programBasicExample = parseInput(input);
+        analyseProgram(programBasicExample);
+
+        // More advanced example
+        System.out.println("--More advanced example--");
+        input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
+        Program programAdvancedExample = parseInput(input);
+        analyseProgram(programAdvancedExample);
+
+        // Example using "code_example.lang" file
+        Path filename = Path.of("code_example.lang");
+        System.out.println("--Example using \"code_example.lang\" file--");
         try {
-            program.accept(semanticAnalyzer);
-        } catch (SemanticException e) {
-            System.out.println("Semantic analysis failed!");
-            System.out.println(e.getMessage());
+            input = Files.readString(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        System.out.println("Semantic analysis completed successfully!");
+        Program programFileExample = parseInput(input);
+        analyseProgram(programFileExample);
     }
     
 
@@ -105,27 +133,6 @@ public class Compiler {
         Compiler compiler = new Compiler();
         compiler.lexer(args);
         compiler.parser();
-
-        // Basic example
-        String input = "var x int = 2; var y int = ((3 + 4) * 5);";
-        Program programBasicExample = compiler.parseInput(input);
-
-        // More advanced example
-        input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
-        Program programAdvancedExample = compiler.parseInput(input);
-
-        // Example using "code_example.lang" file
-        Path filename = Path.of("code_example.lang");
-        try {
-            input = Files.readString(filename);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        Program programFileExample = compiler.parseInput(input);
-
-        // After parsing, perform semantic analysis
-        // Choose the program you want to analyze, for example, programFileExample
-        compiler.semanticAnalysis(programFileExample);
+        compiler.semanticAnalysis();
     }
 }
