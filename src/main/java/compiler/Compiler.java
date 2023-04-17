@@ -13,7 +13,7 @@ import java.nio.file.Path;
 
 public class Compiler {
     private static void printLexer(Lexer lexer, Symbol symbol) {
-        // Print first symbolfe
+        // Print first symbol
         System.out.println("Symbol type: " + symbol.getToken() + ", Lexeme: " + symbol.getLexeme());
         while ((symbol = lexer.getNextSymbol()).getLexeme() != null) {
             // Print all symbols
@@ -64,7 +64,7 @@ public class Compiler {
         return parser.getProgram();
     }
 
-    public void analyseProgram(Program program) throws Parser.ParserException {
+    public void analyseProgram(Program program) {
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
         System.out.println("Performing semantic analysis...");
         try {
@@ -129,7 +129,7 @@ public class Compiler {
     }
     
 
-    public static void main(String[] args) throws Parser.ParserException, SemanticException {
+    public static void main(String[] args) throws Parser.ParserException {
         Compiler compiler = new Compiler();
         compiler.lexer(args);
         compiler.parser();
