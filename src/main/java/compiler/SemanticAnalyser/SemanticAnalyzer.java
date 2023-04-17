@@ -6,6 +6,7 @@ import compiler.Parser.*;
 import java.util.ArrayList;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class SemanticAnalyzer implements ASTVisitor {
 
@@ -268,18 +269,21 @@ public class SemanticAnalyzer implements ASTVisitor {
     public void visit(ProcCall callStmt) throws SemanticException {
         // Perform semantic analysis for call statements here.
         // (e.g., checking for proper arguments, procedure existence, etc.)
+        // Why does IntelliJ think that procDeclObj ca't be a ProcDecl
 
         // Check if the procedure exists
         String identifier = callStmt.getIdentifier();
         if(!symbolTable.containsKey(identifier)){
             throw new SemanticException("Undefined procedure: " + identifier);
         }
-        Type procType = symbolTable.get(identifier);
+        Object procDeclObj = symbolTable.get(identifier); // changed to object type
 
-        // Ensure the procedure has a "Proc" type
-        if(!procType.getName().equals("Proc")) {
+        // Ensure the object has a "ProcDecl" type
+        if(!(procDeclObj instanceof ProcDecl)) {
             throw new SemanticException("Invalid procedure call: " + identifier + " is not a procedure.");
         }
+
+        ProcDecl procDecl = (ProcDecl) procDeclObj;
 
         // Analyze the procedure arguments
         ArrayList<Expr> arguments = callStmt.getArgs();
@@ -287,7 +291,24 @@ public class SemanticAnalyzer implements ASTVisitor {
             arg.accept(this);
         }
 
-        // TODO: Check the types and number of the arguments against the procedure declaration
+        // Check the types and number of the arguments against the procedure declaration
+        ArrayList<Param> expectedParams = procDecl.getParams();
+
+        // Check the number of arguments
+        if (expectedParams.size() != arguments.size()) {
+            throw new SemanticException("Incorrect number of arguments for procedure " + identifier + ": Expected " +
+                    expectedParams.size() + ", found " + arguments.size());
+        }
+
+        // Check the types of arguments
+        for (int i = 0; i < arguments.size(); i++) {
+            Type expectedType = expectedParams.get(i).getType();
+            Type actualType = arguments.get(i).getType();
+            if (!expectedType.equals(actualType)) {
+                throw new SemanticException("Type mismatch for argument " + (i + 1) + " of procedure " + identifier +
+                        ": Expected " + expectedType + ", found " + actualType);
+            }
+        }
     }
 
 
@@ -414,9 +435,6 @@ public class SemanticAnalyzer implements ASTVisitor {
             stmt.accept(this);
         }
     }
-
-    // Implement other visit methods for different AST nodes as needed
-    // ctrlStruct, expressions, etc.
 }
 
 
