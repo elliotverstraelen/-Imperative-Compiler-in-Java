@@ -102,18 +102,20 @@ public class Compiler {
 
     public void semanticAnalysis() throws Parser.ParserException {
         System.out.println("Testing semantic Analysis...");
-        // Basic example of how to use the lexer
-        System.out.println("--Basic example--");
         // Basic example
+        System.out.println("--Basic example--");
         String input = "var x int = 2; var y int = ((3 + 4) * 5);";
-        Program programBasicExample = parseInput(input);
-        analyseProgram(programBasicExample);
+        analyseProgram(parseInput(input));
+
+        // Basing (wrong) example
+        System.out.println("--Basic (wrong) example--");
+        input = "var x int = \"hello\"; var y bool = 10;";
+        analyseProgram(parseInput(input));
 
         // More advanced example
         System.out.println("--More advanced example--");
         input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
-        Program programAdvancedExample = parseInput(input);
-        analyseProgram(programAdvancedExample);
+        analyseProgram(parseInput(input));
 
         // Example using "code_example.lang" file
         Path filename = Path.of("code_example.lang");
@@ -124,8 +126,7 @@ public class Compiler {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        Program programFileExample = parseInput(input);
-        analyseProgram(programFileExample);
+        analyseProgram(parseInput(input));
     }
     
 
