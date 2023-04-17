@@ -2,6 +2,7 @@ package compiler.Parser;
 import compiler.Lexer.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static compiler.Lexer.Lexer.Token.*;
 
@@ -143,7 +144,7 @@ public class Parser {
                 value = new ArrayExpr(new Type(arrayType), new ArrayList<>(initialCapacity));
                 match(SYMBOL_RIGHT_PARENTHESIS);
             } else {
-                value = parseExpr(null);
+                value = parseExpr(new IdentifierExpr(n));
             }
         } else {
             value = parseExpr(null);
@@ -404,27 +405,41 @@ public class Parser {
             case SYMBOL_LEFT_PARENTHESIS -> {
                 match(SYMBOL_LEFT_PARENTHESIS);
                 Expr expr = parseExpr(null);
+                List<Lexer.Token> operators = List.of(SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL);
                 if (lookahead.getToken() == SYMBOL_RIGHT_PARENTHESIS) {
                     match(SYMBOL_RIGHT_PARENTHESIS);
+                } else if (operators.contains(lookahead.getToken())) {
+                    Lexer.Token operator = lookahead.getToken();
+                    match(operator);
+                    expr = parseExpr(new BinaryExpr(expr, null, operator));
                 }
                 return expr;
             }
             case SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL, KEYWORD_AND, KEYWORD_OR -> {
                 Lexer.Token operator = lookahead.getToken();
                 match(operator);
-                Expr right = parseExpr(prec);
-                return new BinaryExpr(prec, right, operator);
+                if (prec != null) {
+                    return parseExpr(new BinaryExpr(prec, null, operator));
+                } else {
+                    return parseExpr(prec);
+                }
             }
             case INTEGER -> {
+                List<Lexer.Token> operators = List.of(SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL);
                 int value = Integer.parseInt(lookahead.getLexeme());
                 match(INTEGER);
                 if (lookahead.getToken() == SYMBOL_SEMICOLON){
                     return new IntegerExpr(value);
                 } else if (prec != null) {
+                    if (prec instanceof BinaryExpr) {
+                        return parseExpr(new BinaryExpr(((BinaryExpr) prec).getLeft(), new IntegerExpr(value), ((BinaryExpr) prec).getOperator()));
+                    } else {
+                        return parseExpr(new BinaryExpr(prec, new IntegerExpr(value), lookahead.getToken()));
+                    }
+                } else if (operators.contains(lookahead.getToken())) {
                     Lexer.Token operator = lookahead.getToken();
                     match(operator);
-                    Expr right = parseExpr(new IntegerExpr(value));
-                    return parseExpr(new BinaryExpr(prec, right, operator));
+                    return parseExpr(new BinaryExpr(new IntegerExpr(value), null, operator));
                 } else {
                     return parseExpr(new IntegerExpr(value));
                 }
@@ -479,6 +494,13 @@ public class Parser {
                 switch (lookahead.getToken()){
                     case SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL, KEYWORD_AND, KEYWORD_OR -> {
                         return parseExpr(new IdentifierExpr(id.getLexeme()));
+                    }
+                    case SYMBOL_SEMICOLON -> {
+                        if (prec != null) {
+                            return parseExpr(new BinaryExpr(((BinaryExpr) prec).getLeft(), new IdentifierExpr(id.getLexeme()), ((BinaryExpr) prec).getOperator()));
+                        } else {
+                            return new IdentifierExpr(id.getLexeme());
+                        }
                     }
                 }
                 if (lookahead.getToken() == SYMBOL_SEMICOLON){

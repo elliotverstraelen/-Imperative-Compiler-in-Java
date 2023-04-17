@@ -1,5 +1,6 @@
 package compiler.Parser;
 
+import compiler.Exceptions.SemanticException;
 import compiler.Lexer.Lexer;
 
 import java.util.ArrayList;
@@ -13,20 +14,8 @@ public class Stmt implements ASTNode{
         return name;
     }
 
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
-    }
-}
-
-class Left extends Stmt {
-    protected final String identifier;
-
-    public Left(Lexer.Token name, String identifier) {
-        super(name);
-        this.identifier = identifier;
-    }
-    public String getIdentifier() {
-        return identifier;
     }
 }
 

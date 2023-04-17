@@ -59,7 +59,6 @@ public class Compiler {
         StringReader reader = new StringReader(input);
         Lexer lexer = new Lexer(reader);
         Parser parser = new Parser(lexer);
-        parser.parseProgram();
 
         return parser.getProgram();
     }
