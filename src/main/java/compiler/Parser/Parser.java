@@ -197,8 +197,8 @@ public class Parser {
      */
     private Param parseParam() throws ParserException {
         String name = lookahead.getLexeme();
-        Type type = parseType();
         match(IDENTIFIER);
+        Type type = parseType();
         return new Param(name, type);
     }
 
