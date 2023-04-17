@@ -1,9 +1,12 @@
 package compiler.SemanticAnalyser;
 
 import compiler.Exceptions.*;
+import compiler.Lexer.Lexer;
 import compiler.Parser.*;
+import java.util.ArrayList;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class SemanticAnalyzer implements ASTVisitor {
 
@@ -238,36 +241,121 @@ public class SemanticAnalyzer implements ASTVisitor {
             }
         }
     }
-    public void visit(ArrayAccess arrayAccess) throws SemanticException {
+    public void visit(ArrayAccess arrayAccess, Type arrayExprType) throws SemanticException {
         // Perform semantic analysis for array expressions here.
         // (e.g., checking for proper index types, bounds, etc.)
 
         // Perform semantic analysis for ArrayAccess
-        visit(arrayAccess.getIndex());
+        // Analyze the array expression and the index expression
+        arrayAccess.getIndex().accept(this);
+
+        // Ensure the array expression is an array type
+        if (!arrayExprType.getName().endsWith("[]")) {
+            throw new SemanticException("Invalid array access: " + arrayExprType + " is not an array type.");
+        }
+
+        // Ensure the index expression is an integer type
+        Type indexExprType = arrayAccess.getIndex().getType();
+        if (!indexExprType.getName().equals("int")) {
+            throw new SemanticException("Invalid array access: Index expression type should be int, found " + indexExprType);
+        }
+
     }
 
-    public void visit(ReturnStmt returnStmt) {
+    public void visit(ReturnStmt returnStmt) throws SemanticException {
         // Perform semantic analysis for return statements here.
         // (e.g., checking for correct return type, scope, etc.)
-        //TODO
+        Expr returnValue = returnStmt.getValue();
+        if (returnValue != null) {
+            returnValue.accept(this);
+        }
     }
 
-    public void visit(CtrlStruct ifStmt) {
+    public void visit(CtrlStruct ifStmt) throws SemanticException {
         // Perform semantic analysis for if statements here.
         // (e.g., checking for proper condition types, analyzing then and else blocks, etc.)
-        //TODO
+        // Analyze the condition expression
+
+        Expr condition = ifStmt.getCondition();
+        condition.accept(this);
+
+        // Ensure the condition expression is of type boolean
+        Type conditionType = condition.getType();
+        if(!conditionType.getName().equals("boolean")) {
+            throw new SemanticException("Invalid if condition: expected boolean, found " + conditionType);
+        }
+
+        // Analyze th then block
+        Block thenBlock = ifStmt.getBody();
+        thenBlock.accept(this);
+
+        // Analyze the else block (if present)
+        Block elseBlock = ifStmt.getElseBody();
+        if (elseBlock != null){
+            elseBlock.accept(this);
+        }
     }
 
-    public void visit(For whileStmt) {
+    public void visit(For forStmt) throws SemanticException {
         // Perform semantic analysis for while statements here.
         // (e.g., checking for proper condition types, analyzing loop body, etc.)
-        //TODO
+
+        // Analyze the loop condition expression
+        Expr loopCondition = forStmt.getCondition();
+        loopCondition.accept(this);
+
+        // Analyze th loop step expression
+        Expr loopStep = forStmt.getStep();
+        loopStep.accept(this);
+
+        // Analyze the loop body block
+        Block loopBody = forStmt.getBody();
+        loopBody.accept(this);
     }
 
-    public void visit(ProcCall callStmt) {
+    public void visit(ProcCall callStmt) throws SemanticException {
         // Perform semantic analysis for call statements here.
         // (e.g., checking for proper arguments, procedure existence, etc.)
-        //TODO
+        // Why does IntelliJ think that procDeclObj ca't be a ProcDecl
+
+        // Check if the procedure exists
+        String identifier = callStmt.getIdentifier();
+        if(!symbolTable.containsKey(identifier)){
+            throw new SemanticException("Undefined procedure: " + identifier);
+        }
+        Object procDeclObj = symbolTable.get(identifier); // changed to object type
+
+        // Ensure the object has a "ProcDecl" type
+        if(!(procDeclObj instanceof ProcDecl)) {
+            throw new SemanticException("Invalid procedure call: " + identifier + " is not a procedure.");
+        }
+
+        ProcDecl procDecl = (ProcDecl) procDeclObj;
+
+        // Analyze the procedure arguments
+        ArrayList<Expr> arguments = callStmt.getArgs();
+        for (Expr arg : arguments) {
+            arg.accept(this);
+        }
+
+        // Check the types and number of the arguments against the procedure declaration
+        ArrayList<Param> expectedParams = procDecl.getParams();
+
+        // Check the number of arguments
+        if (expectedParams.size() != arguments.size()) {
+            throw new SemanticException("Incorrect number of arguments for procedure " + identifier + ": Expected " +
+                    expectedParams.size() + ", found " + arguments.size());
+        }
+
+        // Check the types of arguments
+        for (int i = 0; i < arguments.size(); i++) {
+            Type expectedType = expectedParams.get(i).getType();
+            Type actualType = arguments.get(i).getType();
+            if (!expectedType.equals(actualType)) {
+                throw new SemanticException("Type mismatch for argument " + (i + 1) + " of procedure " + identifier +
+                        ": Expected " + expectedType + ", found " + actualType);
+            }
+        }
     }
 
 
@@ -296,10 +384,20 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((StringExpr) expr);
         } // Continue with other expression types as needed
     }
-    public void visit(ArrayExpr arrayExpr) {
+    public void visit(ArrayExpr arrayExpr) throws SemanticException {
         // Perform semantic analysis for array expressions here.
         // (e.g., checking for proper index types, bounds, etc.)
-        //TODO
+        // Analyze the elements of the Array
+        for (Expr e : arrayExpr.getContent()){
+            e.accept(this);
+        }
+        // Ensure that all elements of the array are of the expected type
+        Type expectedType = arrayExpr.getType();
+        for (Expr e : arrayExpr.getContent()) {
+            if (!e.getType().equals(expectedType)) {
+                throw new SemanticException("Array element type mismatch: Expected " + expectedType + ", found " + e.getType());
+            }
+        }
     }
 
     /**
@@ -348,39 +446,41 @@ public class SemanticAnalyzer implements ASTVisitor {
     }
 
     public void visit(BooleanExpr booleanExpr) {
-        // Perform semantic analysis for boolean expressions here.
-        // (e.g., checking for proper boolean values, etc.)
-        //TODO
+        // Noting to check for boolean literals
     }
 
-    public void visit(IdentifierExpr identifierExpr) {
-        // Perform semantic analysis for identifier expressions here.
-        // (e.g., checking for undeclared identifiers, proper use, etc.)
-        //TODO
+    public void visit(IdentifierExpr identifierExpr) throws SemanticException {
+        // Check if the identifier is delcared
+        String identifier = identifierExpr.getIdentifier();
+        if(!symbolTable.containsKey(identifier)) {
+            throw new SemanticException("Undeclared identifier: " + identifier);
+        }
+        // Get the type of the identifier from the symbol table
+        identifierExpr.setType(symbolTable.get(identifier));
     }
 
     public void visit(IntegerExpr integerExpr) {
-        // Perform semantic analysis for integer expressions here.
-        // (e.g., checking for proper integer values, etc.)
-        //TODO
+        // For integer literals, the type is always int.
+        // Could check if value of within the valid range for int !!!
+        // Since the IntegerExpr class represents integer litterals, no need for additional semantic analysis
     }
 
     public void visit(RealExpr realExpr) {
         // Perform semantic analysis for real expressions here.
         // (e.g., checking for proper real values, etc.)
-        //TODO
+        // no need for semantic analysis
     }
 
     public void visit(RecordExpr recordExpr) {
         // Perform semantic analysis for record expressions here.
         // (e.g., checking for proper record field access, etc.)
-        //TODO
+        // no need for semantic analysis
     }
 
     public void visit(StringExpr stringExpr) {
         // Perform semantic analysis for string expressions here.
         // (e.g., checking for proper string values, etc.)
-        //TODO
+        // no need for semantic analysis
     }
 
     /**
@@ -388,12 +488,12 @@ public class SemanticAnalyzer implements ASTVisitor {
      * @param block: Block node to visit
      */
     @Override
-    public void visit(Block block) {
-        //TODO
+    public void visit(Block block) throws SemanticException {
+        // Analyze each statement in the block
+        for (Stmt stmt : block.getStatements()){
+            stmt.accept(this);
+        }
     }
-
-    // Implement other visit methods for different AST nodes as needed
-    // ctrlStruct, expressions, etc.
 }
 
 

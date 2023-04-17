@@ -6,20 +6,20 @@ import compiler.Exceptions.SemanticException;
 import java.util.ArrayList;
 
 public class Expr implements ASTNode{
-    protected final String type; // Type of expression
+    protected Type type; // Type of expression
 
-    public Expr(String type) {
-        this.type = type;
+    public Expr(String typeName) {
+        this.type = new Type(typeName);
     }
 
-    public String getType() {
-        return type;
+    public Type getType() {
+        return this.type;
     }
     @Override
     public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
     }
 
-    public String toString() { return type; }
+    public String toString() { return type.toString(); }
 }
 

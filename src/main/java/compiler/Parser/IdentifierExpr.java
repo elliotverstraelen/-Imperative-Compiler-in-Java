@@ -11,4 +11,8 @@ public class IdentifierExpr extends Expr {
     public String getIdentifier() {
         return identifier;
     }
+
+    public void setType(Type type) {
+
+    }
 }

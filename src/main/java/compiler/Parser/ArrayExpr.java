@@ -13,10 +13,16 @@ public class ArrayExpr extends Expr {
         this.type = type;
         this.content = content;
     }
+    @Override
+    public Type getType() {
+        return this.type;
+    }
+
 
     public ArrayList<Expr> getContent() {
         return content;
     }
+
 
     @Override
     public void accept(ASTVisitor visitor) throws SemanticException {

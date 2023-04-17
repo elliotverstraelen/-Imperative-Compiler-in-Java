@@ -22,6 +22,6 @@ public interface ASTVisitor {
 
     void visit(Expr expr) throws SemanticException;
 
-    void visit(Block block);
+    void visit(Block block) throws SemanticException;
     // Add other visit methods for other ASTNode types
 }
