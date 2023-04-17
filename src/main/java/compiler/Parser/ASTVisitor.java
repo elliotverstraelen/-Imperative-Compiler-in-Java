@@ -18,8 +18,6 @@ public interface ASTVisitor {
 
     void visit(Param param) throws SemanticException;
 
-    void visit(Type type);
-
     void visit(Stmt stmt);
 
     void visit(Expr expr);

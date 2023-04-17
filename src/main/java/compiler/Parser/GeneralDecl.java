@@ -6,7 +6,6 @@ public abstract class GeneralDecl implements ASTNode {
     //public final Lexer.Token name; // Const, Record, Var or Val
     protected Type type; // Type of the variable
     protected String identifier; // Identifier of the variable
-
     protected Expr value; // Value of the variable
 
     public GeneralDecl(Type type, String identifier, Expr value) {

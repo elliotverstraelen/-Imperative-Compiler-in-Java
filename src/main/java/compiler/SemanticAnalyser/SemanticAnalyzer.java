@@ -53,8 +53,14 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(Program program) throws SemanticException {
-        for (GeneralDecl declaration : program.getDeclarations()){
-            declaration.accept(this);
+        for (Object obj : program.getContent()){
+            if (obj instanceof GeneralDecl) {
+                ((GeneralDecl) obj).accept(this);
+            } else if (obj instanceof Stmt){
+                ((Stmt) obj).accept(this);
+            } else {
+                throw new RuntimeException("Unexpected object in program content");
+            }
         }
     }
 
@@ -89,7 +95,7 @@ public class SemanticAnalyzer implements ASTVisitor {
         String declType = decl.getType().toString();
         String valueType = decl.getValue().getType();
         if (symbolTable.containsKey(declName)){
-            throw new SemanticException("Duplicate " + declExpr + " name : " + declName);
+            throw new DuplicateVariableNameException("Duplicate " + declExpr + " name : " + declName);
         }
         // Check if variable type is valid (except for arrays and binary expressions)
         if (!declType.equals("ArrayExpr") && !valueType.equals("BinaryExpr")) {
@@ -141,7 +147,7 @@ public class SemanticAnalyzer implements ASTVisitor {
     public void visit(ProcDecl procDecl) throws SemanticException {
         String procName = procDecl.getIdentifier();
         if (symbolTable.containsKey(procName)){
-            throw new SemanticException("Duplicate procedure name: " + procName);
+            throw new DuplicateProcedureNameException("Duplicate procedure name: " + procName);
         }
         symbolTable.put(procName, procDecl.getType());
     }
@@ -155,18 +161,9 @@ public class SemanticAnalyzer implements ASTVisitor {
     public void visit(Param param) throws SemanticException {
         String paramName = param.getName();
         if (symbolTable.containsKey(paramName)){
-            throw new SemanticException("Duplicate parameter name: " + paramName);
+            throw new DuplicateParameterNameException("Duplicate parameter name: " + paramName);
         }
         symbolTable.put(paramName, param.getType());
-    }
-
-    /**
-     * Perform semantic analysis for type nodes
-     * @param type: Type node to visit
-     */
-    @Override
-    public void visit(Type type) {
-        // Type nodes do not require semantic analysis, as they are used for type checking.
     }
 
     /**
@@ -187,13 +184,12 @@ public class SemanticAnalyzer implements ASTVisitor {
         } else if (stmt instanceof Assignment) {
             visit((Assignment) stmt);
         }
-        // Continue with other statement types as needed
     }
 
     public void visit(Assignment assignStmt) {
         // Perform semantic analysis for assignment statements here.
         // (e.g., checking for uninitialized variables, type compatibility, etc.)
-        //TODO
+        String assignName = String.valueOf(assignStmt.getName());
     }
     public void visit(ArrayAccess arrayAccess) {
         // Perform semantic analysis for array expressions here.

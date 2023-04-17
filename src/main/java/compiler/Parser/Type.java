@@ -10,9 +10,6 @@ public class Type {
     public String getName() {
         return name;
     }
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
 
     public String toString() { return name;  }
 }

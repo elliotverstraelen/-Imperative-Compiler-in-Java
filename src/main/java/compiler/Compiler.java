@@ -106,10 +106,14 @@ public class Compiler {
         System.out.println("--Basic example--");
         String input = "var x int = 2; var y int = ((3 + 4) * 5);";
         analyseProgram(parseInput(input));
+        input = "var x int = 2; x = (3 + 4);";
+        analyseProgram(parseInput(input));
 
         // Basing (wrong) example
-        System.out.println("--Basic (wrong) example--");
+        System.out.println("--Basic (wrong) examples--");
         input = "var x int = \"hello\"; var y bool = 10;";
+        analyseProgram(parseInput(input));
+        input = "var x int = 1; var x int = 2;";
         analyseProgram(parseInput(input));
 
         // More advanced example

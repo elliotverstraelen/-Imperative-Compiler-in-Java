@@ -24,7 +24,7 @@ public class Parser {
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.lookahead = lexer.currentSymbol;
-        this.program = new Program(new ArrayList<>());
+        this.program = new Program();
         try {
             parseProgram();
         } catch (ParserException e) {
@@ -54,10 +54,11 @@ public class Parser {
     public void parseProgram() throws ParserException {
         while (lookahead.getToken() != EOF) {
             switch (lookahead.getToken()) {
-                case KEYWORD_RECORD -> this.program.addDeclaration(parseRecordDecl());
-                case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.addDeclaration(parseGeneralDecl());
-                case KEYWORD_PROC -> this.program.addDeclaration(parseProcDecl());
+                case KEYWORD_RECORD -> this.program.add(parseRecordDecl());
+                case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.add(parseGeneralDecl());
+                case KEYWORD_PROC -> this.program.add(parseProcDecl());
                 case SYMBOL_SEMICOLON -> match(SYMBOL_SEMICOLON);
+                case IDENTIFIER -> this.program.add(parseAssignment());
                 default -> throw new ParserException("Expected a declaration but got " + lookahead.getToken());
             }
         }
@@ -329,7 +330,7 @@ public class Parser {
      */
     private Stmt parseAssignment() throws ParserException {
         Object left = parseLeft();
-        match(SYMBOL_EQUAL);
+        match(SYMBOL_ASSIGN);
         Expr value = parseExpr(null);
         match(SYMBOL_SEMICOLON);
         return new Assignment(SYMBOL_ASSIGN, left, value);
@@ -343,8 +344,9 @@ public class Parser {
     private Stmt parseLeft() throws ParserException {
         switch (lookahead.getToken()) {
             case IDENTIFIER -> {
+                String varName = lookahead.getLexeme();
                 match(IDENTIFIER);
-                return new Left(IDENTIFIER, lookahead.getLexeme());
+                return new Left(IDENTIFIER, varName);
             }
             case SYMBOL_LEFT_BRACKET -> {
                 // Array access
