@@ -8,7 +8,7 @@ public class RecordExpr extends Expr {
     protected final ArrayList<RecordEntry> content; // Content of the record
 
     public RecordExpr(String type, ArrayList<RecordEntry> content) {
-        super(type);
+        super("record");
         this.content = content;
     }
 

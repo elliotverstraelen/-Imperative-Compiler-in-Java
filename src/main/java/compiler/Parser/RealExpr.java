@@ -4,7 +4,7 @@ public class RealExpr extends Expr {
     protected final double value; // Value of the real
 
     public RealExpr(double value) {
-        super("RealExpr");
+        super("real");
         this.value = value;
     }
 

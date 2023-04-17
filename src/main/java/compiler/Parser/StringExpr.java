@@ -4,7 +4,7 @@ public class StringExpr extends Expr {
     protected final String value; // Value of the string
 
     public StringExpr(String value) {
-        super("StringExpr");
+        super("string");
         this.value = value;
     }
 

@@ -13,4 +13,6 @@ public class Type {
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
+
+    public String toString() { return name;  }
 }

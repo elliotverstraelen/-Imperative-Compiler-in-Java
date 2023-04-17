@@ -69,11 +69,11 @@ public class Compiler {
         System.out.println("Performing semantic analysis...");
         try {
             program.accept(semanticAnalyzer);
+            System.out.println("Semantic analysis completed successfully!");
         } catch (SemanticException e) {
-            System.out.println("Semantic analysis failed!");
             System.out.println(e.getMessage());
+            System.out.println("Semantic analysis failed!");
         }
-        System.out.println("Semantic analysis completed successfully!");
     }
 
     public void parser() throws Parser.ParserException {

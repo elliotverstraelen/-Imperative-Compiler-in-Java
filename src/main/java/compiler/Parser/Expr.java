@@ -19,5 +19,7 @@ public class Expr implements ASTNode{
     public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
     }
+
+    public String toString() { return type; }
 }
 

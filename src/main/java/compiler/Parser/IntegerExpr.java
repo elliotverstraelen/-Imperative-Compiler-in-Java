@@ -4,7 +4,7 @@ public class IntegerExpr extends Expr {
     protected final int value; // Value of the integer
 
     public IntegerExpr(int value) {
-        super("IntegerExpr");
+        super("int");
         this.value = value;
     }
 

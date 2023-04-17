@@ -79,17 +79,26 @@ public class SemanticAnalyzer implements ASTVisitor {
     }
 
     /**
-     * Perform semantic analysis for value declaration nodes
-     * @param valDecl: ValDecl node to visit
+     * Perform semantic analysis for value/variable/constant declaration nodes
+     * @param decl: GeneralDecl node to visit
+     * @param declExpr: String representation of the declaration expression
      * @throws SemanticException: If duplicate variable names are found
      */
-    @Override
-    public void visit(ValDecl valDecl) throws SemanticException {
-        String varName = valDecl.getIdentifier();
-        if (symbolTable.containsKey(varName)){
-            throw new SemanticException("Duplicate variable name: " + varName);
+    public void visit(GeneralDecl decl, String declExpr) throws SemanticException {
+        String declName = decl.getIdentifier();
+        String declType = decl.getType().toString();
+        String valueType = decl.getValue().getType();
+        if (symbolTable.containsKey(declName)){
+            throw new SemanticException("Duplicate " + declExpr + " name : " + declName);
         }
-        symbolTable.put(varName, valDecl.getType());
+        // Check if variable type is valid (except for arrays and binary expressions)
+        if (!declType.equals("ArrayExpr") && !valueType.equals("BinaryExpr")) {
+            if (!declType.equals(valueType)){
+                throw new SemanticException("Variable " + declName + " type does not match value type. Found " +
+                        valueType + " expected " + declType + ".");
+            }
+        }
+        symbolTable.put(declName, decl.getType());
     }
 
     /**
@@ -99,25 +108,28 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(ConstDecl constDecl) throws SemanticException {
-        String constName = constDecl.getIdentifier();
-        if (symbolTable.containsKey(constName)){
-            throw new SemanticException("Duplicate constant name: " + constName);
-        }
-        symbolTable.put(constName, constDecl.getType());
+        visit(constDecl, "constant");
     }
 
     /**
      * Perform semantic analysis for variable declaration nodes
+     * Check for duplicate variable names and if the variable type is valid
      * @param varDecl: VarDecl node to visit
      * @throws SemanticException: If duplicate variable names are found
      */
     @Override
     public void visit(VarDecl varDecl) throws SemanticException {
-        String varName = varDecl.getIdentifier();
-        if (symbolTable.containsKey(varName)){
-            throw new SemanticException("Duplicate variable name: " + varName);
-        }
-        symbolTable.put(varName, varDecl.getType());
+        visit(varDecl, "variable");
+    }
+
+    /**
+     * Perform semantic analysis for value declaration nodes
+     * @param valDecl: ValDecl node to visit
+     * @throws SemanticException: If duplicate variable names are found
+     */
+    @Override
+    public void visit(ValDecl valDecl) throws SemanticException {
+        visit(valDecl, "value");
     }
 
     /**
