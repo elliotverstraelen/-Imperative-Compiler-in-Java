@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalyser.SemanticException;
+
 import java.util.ArrayList;
 
 public class ProcDecl extends GeneralDecl {
@@ -14,7 +16,7 @@ public class ProcDecl extends GeneralDecl {
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
         for (Param param : params) {
             param.accept(visitor);

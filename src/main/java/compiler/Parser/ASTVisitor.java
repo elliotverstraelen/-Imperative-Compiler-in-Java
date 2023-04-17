@@ -3,13 +3,18 @@ package compiler.Parser;
 import compiler.SemanticAnalyser.SemanticException;
 
 public interface ASTVisitor {
-    void visit(Program program);
-    void visit(GeneralDecl generalDecl);
+    void visit(Program program) throws SemanticException;
+    void visit(GeneralDecl generalDecl) throws SemanticException;
     void visit(RecordT recordT) throws SemanticException;
     void visit(RecordEntry recordEntry) throws SemanticException;
-    void visit(ProcDecl procDecl);
 
-    void visit(Param param);
+    void visit(ValDecl valDecl) throws SemanticException;
+
+    void visit(VarDecl varDecl) throws SemanticException;
+
+    void visit(ProcDecl procDecl) throws SemanticException;
+
+    void visit(Param param) throws SemanticException;
 
     void visit(Type type);
 
