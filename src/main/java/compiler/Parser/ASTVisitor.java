@@ -5,7 +5,7 @@ import compiler.SemanticAnalyser.SemanticException;
 public interface ASTVisitor {
     void visit(Program program);
     void visit(GeneralDecl generalDecl);
-    void visit(RecordT recordT);
+    void visit(RecordT recordT) throws SemanticException;
     void visit(RecordEntry recordEntry) throws SemanticException;
     void visit(ProcDecl procDecl);
 

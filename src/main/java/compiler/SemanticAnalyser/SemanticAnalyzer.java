@@ -2,32 +2,47 @@ package compiler.SemanticAnalyser;
 
 import compiler.Parser.*;
 
-import java.util.HashSet;
+import java.util.HashMap;
 
 public class SemanticAnalyzer implements ASTVisitor {
 
     // To perform semantic analysis, we need to check for duplicate field names. We can do this by keeping track of this with a hashset
-    private HashSet<String> recordFields;
+    HashMap<String, Type> symbolTable;
 
+    /**
+     * Constructor for SemanticAnalyzer
+     */
     public SemanticAnalyzer(){
-        recordFields = new HashSet<>();
+        symbolTable = new HashMap<>();
     }
 
+    /**
+     * Visit method for RecordEntry
+     * @param recordEntry: RecordEntry node
+     * @throws SemanticException: If duplicate field names are found
+     */
     @Override
     public void visit(RecordEntry recordEntry) throws SemanticException {
         // Perform semantic analysis for RecordEntry, duplicate field names
         String fieldName = recordEntry.identifier;
-        if (recordFields.contains(fieldName)) {
-            throw new SemanticException("Duplicate field name '" + fieldName + "' in record type.");
-        } else {
-            recordFields.add(fieldName);
+        if (symbolTable.containsKey(fieldName)){
+            throw new SemanticException("Duplicate field name: " + fieldName);
         }
+        symbolTable.put(fieldName, recordEntry.type);
     }
 
+    /**
+     * Perform semantic analysis for RecordT
+     * @param recordT: RecordT node to visit
+     * @throws SemanticException: If duplicate record type names are found
+     */
     @Override
-    public void visit(RecordT recordT) {
-        // Perform semantic analysis for RecordT
-        // Check for duplicate record type names, for example
+    public void visit(RecordT recordT) throws SemanticException {
+        String recordTypeName = recordT.identifier;
+        if (symbolTable.containsKey(recordTypeName)){
+            throw new SemanticException("Duplicate record type name: " + recordTypeName);
+        }
+        symbolTable.put(recordTypeName, recordT.getType());
     }
 
     @Override
