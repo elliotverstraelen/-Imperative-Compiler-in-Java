@@ -12,7 +12,9 @@ public class IdentifierExpr extends Expr {
         return identifier;
     }
 
-    public void setType(Type type) {
+    public void setType(Type newType) { type = newType; }
 
+    public String toString() {
+        return "{" + identifier + '}';
     }
 }

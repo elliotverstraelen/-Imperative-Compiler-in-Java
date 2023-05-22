@@ -33,4 +33,12 @@ public class BinaryExpr extends Expr {
         left.accept(visitor);
         right.accept(visitor);
     }
+
+    public String toString() {
+        return "{" +
+                (left == null ? null : left.toString()) +
+                operator +
+                (right == null ? null : right.toString()) +
+                '}';
+    }
 }

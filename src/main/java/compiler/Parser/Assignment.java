@@ -19,4 +19,12 @@ public class Assignment extends Stmt {
     public Expr getValue() {
         return value;
     }
+
+    public String toString() {
+        return "Assignment{" +
+                "name=" + name +
+                ", left=" + left.toString() +
+                ", value=" + value.toString() +
+                '}';
+    }
 }

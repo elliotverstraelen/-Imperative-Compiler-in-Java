@@ -28,4 +28,12 @@ public class RecordEntry implements ASTNode {
     public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
     }
+
+    public String toString() {
+        return "RecordEntry{" +
+                "identifier=" + identifier +
+                ", type=" + type +
+                ", value=" + value +
+                '}';
+    }
 }

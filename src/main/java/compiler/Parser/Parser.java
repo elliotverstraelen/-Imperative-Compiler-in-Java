@@ -26,7 +26,7 @@ public class Parser {
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.lookahead = lexer.currentSymbol;
-        this.program = new Program();
+        this.program = new Program(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         try {
             parseProgram();
         } catch (ParserException e) {
@@ -57,10 +57,10 @@ public class Parser {
         while (lookahead.getToken() != EOF) {
             switch (lookahead.getToken()) {
                 case KEYWORD_RECORD -> this.program.add(parseRecordDecl());
-                case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.add(parseGeneralDecl());
+                case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.add(parseGeneralDecl(true));
+                case IDENTIFIER -> this.program.add(parseGeneralDecl(false));
                 case KEYWORD_PROC -> this.program.add(parseProcDecl());
                 case SYMBOL_SEMICOLON -> match(SYMBOL_SEMICOLON);
-                case IDENTIFIER -> this.program.add(parseAssignment());
                 default -> throw new ParserException("Expected a declaration but got " + lookahead.getToken());
             }
         }
@@ -123,11 +123,19 @@ public class Parser {
      * Grammar: GeneralDecl -> (const | var | val) Identifier Type = Expr ;
      * @return GeneralDecl - General declaration
      */
-    private GeneralDecl parseGeneralDecl() throws ParserException {
-        Lexer.Token name = lookahead.getToken();
-        match(name);
-        String identifier = match(IDENTIFIER).getLexeme();
-        Type type = parseType();
+    private GeneralDecl parseGeneralDecl(boolean newDecl) throws ParserException {
+        Lexer.Token name;
+        String identifier;
+        Type type = null;
+        if (newDecl) {
+            name = lookahead.getToken();
+            match(name);
+            identifier = match(IDENTIFIER).getLexeme();
+            type = parseType();
+        } else {
+            name = IDENTIFIER;
+            identifier = match(IDENTIFIER).getLexeme();
+        }
         match(SYMBOL_ASSIGN);
         Expr value;
         if (lookahead.getToken() == IDENTIFIER){
@@ -151,16 +159,13 @@ public class Parser {
         } else {
             value = parseExpr(null);
         }
-        GeneralDecl generalDecl = switch (name) {
+        return switch (name) {
             case KEYWORD_CONST -> new ConstDecl(type, identifier, value);
             case KEYWORD_VAR -> new VarDecl(type, identifier, value);
             case KEYWORD_VAL -> new ValDecl(type, identifier, value);
+            case IDENTIFIER -> new VarDecl(type, identifier, value); // TODO: Check assignment handling
             default -> throw new ParserException("Unexpected declaration type: " + name);
         };
-        if (lookahead.getToken() == SYMBOL_SEMICOLON) {
-            match(SYMBOL_SEMICOLON);
-        }
-        return generalDecl;
     }
 
     /**
@@ -176,8 +181,7 @@ public class Parser {
         match(SYMBOL_RIGHT_PARENTHESIS);
         Type type = parseType();
         Block block = parseBlock();
-        ProcDecl procDecl = new ProcDecl(type, identifier, params, block);
-        return procDecl;
+        return new ProcDecl(identifier, params, type, block);
     }
 
     /**
@@ -264,7 +268,7 @@ public class Parser {
                 }
             }
             case KEYWORD_VAR, KEYWORD_VAL, KEYWORD_CONST -> {
-                return parseGeneralDecl();
+                return parseGeneralDecl(true);
             }
             case KEYWORD_RETURN -> {
                 return parseReturn();

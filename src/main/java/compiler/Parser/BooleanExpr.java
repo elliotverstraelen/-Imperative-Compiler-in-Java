@@ -4,8 +4,12 @@ public class BooleanExpr extends Expr {
     public final boolean value; // Value of the boolean
 
     public BooleanExpr(boolean value) {
-        super("bool");
+        super("BooleanExpr");
         this.value = value;
+    }
+
+    public String toString() {
+        return "{" + value + '}';
     }
 
     public boolean getValue() {

@@ -30,4 +30,13 @@ public class CtrlStruct extends Stmt {
     public Block getElseBody() {
         return elseBody;
     }
+
+    public String toString() {
+        return "CtrlStruct{" +
+                "name=" + name +
+                ", condition=" + condition.toString() +
+                ", thenBody=" + thenBody.toString() +
+                ", elseBody=" + (elseBody == null ? null : elseBody.toString()) +
+                '}';
+    }
 }

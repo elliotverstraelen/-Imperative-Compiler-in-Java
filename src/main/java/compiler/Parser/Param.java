@@ -14,7 +14,7 @@ public class Param implements ASTNode {
     public String toString() {
         return "Param{" +
                 "name=" + name +
-                ", type=" + type.name +
+                ", type=" + type.getName() +
                 '}';
     }
 

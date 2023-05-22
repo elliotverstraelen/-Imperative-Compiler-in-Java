@@ -4,13 +4,11 @@ import compiler.Exceptions.SemanticException;
 
 import java.util.ArrayList;
 
-public class RecordT extends GeneralDecl{
+public class RecordT implements ASTNode {
     private final String identifier;
     private final ArrayList<RecordEntry> fields;
 
     public RecordT(String identifier, ArrayList<RecordEntry> fields) {
-        // Assuming the RecordT has a null Type and Expr value
-        super(null, identifier, null);
         this.identifier = identifier;
         this.fields = fields;
     }
@@ -18,17 +16,10 @@ public class RecordT extends GeneralDecl{
         return identifier;
     }
 
-    public String toString() {
-        return "RecordT{" +
-                "identifier=" + identifier +
-                ", fields=" + fields.toString() +
-                '}';
-    }
-}
-
     public ArrayList<RecordEntry> getFields() {
         return fields;
     }
+
     @Override
     public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
@@ -38,10 +29,9 @@ public class RecordT extends GeneralDecl{
     }
 
     public String toString() {
-        return "RecordEntry{" +
+        return "RecordT{" +
                 "identifier=" + identifier +
-                ", type=" + type +
-                ", value=" + value +
+                ", fields=" + fields.toString() +
                 '}';
     }
 }

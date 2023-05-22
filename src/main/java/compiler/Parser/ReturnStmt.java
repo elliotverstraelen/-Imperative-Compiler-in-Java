@@ -13,4 +13,10 @@ public class ReturnStmt extends Stmt {
     public Expr getValue() {
         return value;
     }
+
+    public String toString() {
+        return "ReturnStmt{" +
+                "value=" + value +
+                '}';
+    }
 }

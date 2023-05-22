@@ -14,4 +14,15 @@ public class For extends CtrlStruct {
     public Expr getStep() {
         return step;
     }
+
+    public String toString() {
+        BinaryExpr cnd = (BinaryExpr) condition;
+        return "For{" +
+                "name=" + name +
+                ", init=" + cnd.left.toString() +
+                ", end=" + cnd.right.toString() +
+                ", step=" + step.toString() +
+                ", body=" + thenBody.toString() +
+                '}';
+    }
 }

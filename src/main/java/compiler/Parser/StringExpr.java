@@ -11,4 +11,8 @@ public class StringExpr extends Expr {
     public String getValue() {
         return value;
     }
+
+    public String toString() {
+        return "{" + value + '}';
+    }
 }

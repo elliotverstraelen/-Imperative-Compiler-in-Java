@@ -8,7 +8,7 @@ public class RecordExpr extends Expr {
     protected final ArrayList<RecordEntry> content; // Content of the record
 
     public RecordExpr(String type, ArrayList<RecordEntry> content) {
-        super("record");
+        super("RecordExpr");
         this.content = content;
     }
 
@@ -22,5 +22,9 @@ public class RecordExpr extends Expr {
         for (RecordEntry entry : content) {
             entry.accept(visitor);
         }
+    }
+
+    public String toString() {
+        return "{" + content.toString() + '}';
     }
 }

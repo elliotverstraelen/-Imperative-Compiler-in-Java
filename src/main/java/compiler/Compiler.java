@@ -92,8 +92,8 @@ public class Compiler {
                 System.out.println(globalDecl);
             }
         }
-        if (program.hasProcDeclDecls()) {
-            for (var procDecl : program.getProcDeclDecls()) {
+        if (program.hasProcDecls()) {
+            for (var procDecl : program.getProcDecls()) {
                 System.out.println(procDecl);
             }
         }
@@ -117,8 +117,8 @@ public class Compiler {
                 System.out.println(globalDecl.toString());
             }
         }
-        if (program.hasProcDeclDecls()) {
-            for (var procDecl : program.getProcDeclDecls()) {
+        if (program.hasProcDecls()) {
+            for (var procDecl : program.getProcDecls()) {
                 System.out.println(procDecl.toString());
             }
         }
@@ -147,8 +147,8 @@ public class Compiler {
                 System.out.println(globalDecl);
             }
         }
-        if (program.hasProcDeclDecls()) {
-            for (var procDecl : program.getProcDeclDecls()) {
+        if (program.hasProcDecls()) {
+            for (var procDecl : program.getProcDecls()) {
                 System.out.println(procDecl);
             }
         }

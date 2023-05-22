@@ -5,6 +5,7 @@ import compiler.Parser.*;
 import java.util.ArrayList;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class SemanticAnalyzer implements ASTVisitor {
 
@@ -44,7 +45,7 @@ public class SemanticAnalyzer implements ASTVisitor {
         if (symbolTable.containsKey(recordTypeName)){
             throw new DuplicateRecordTypeException("Duplicate record type name: " + recordTypeName);
         }
-        symbolTable.put(recordTypeName, recordT.getType());
+        symbolTable.put(recordTypeName, new Type("RecordT"));
     }
 
     /**
@@ -54,13 +55,15 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(Program program) throws SemanticException {
-        for (Object obj : program.getContent()){
+        for (Object obj : program.getContent()) {
             if (obj instanceof GeneralDecl) {
                 ((GeneralDecl) obj).accept(this);
-            } else if (obj instanceof Stmt){
+            } else if (obj instanceof Stmt) {
                 ((Stmt) obj).accept(this);
+            } else if (obj instanceof RecordT) {
+                ((RecordT) obj).accept(this);
             } else {
-                throw new RuntimeException("Unexpected object in program content");
+                throw new RuntimeException("Unexpected object in program content : " + obj);
             }
         }
     }
@@ -80,9 +83,9 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((ProcDecl) generalDecl);
         } else if (generalDecl instanceof ConstDecl){
             visit((ConstDecl) generalDecl);
-        } else if (generalDecl instanceof RecordT){
+        } /*else if (generalDecl instanceof RecordT){ // RecordT is a type not a declaration
             visit((RecordT) generalDecl);
-        }
+        } */
     }
 
     /**

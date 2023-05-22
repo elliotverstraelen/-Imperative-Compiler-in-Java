@@ -1,8 +1,10 @@
 package compiler.Parser;
 
+import compiler.Exceptions.SemanticException;
 import java.util.ArrayList;
+import static compiler.Lexer.Lexer.Token.KEYWORD_PROC;
 
-public class ProcDecl {
+public class ProcDecl extends GeneralDecl {
     // Grammar : ProcDecl -> identifier ( Params ) Type Block
     public final String identifier; // Name of the procedure
     public final ArrayList<Param> params;
@@ -10,6 +12,7 @@ public class ProcDecl {
     public final Block body;
 
     public ProcDecl(String identifier, ArrayList<Param> params, Type returnType, Block body) {
+        super(KEYWORD_PROC, returnType, identifier, null);
         this.identifier = identifier;
         this.params = params;
         this.returnType = returnType;
@@ -20,24 +23,22 @@ public class ProcDecl {
         return "ProcDecl{" +
                 "identifier=" + identifier +
                 ", params=" + params.toString() +
-                ", returnType=" + returnType.name +
+                ", returnType=" + returnType.getName() +
                 ", body=" + body.toString() +
                 '}';
     }
-}
 
     public ArrayList<Param> getParams() {
         return params;
 
     }
-        return body;
-    public Block getBody() {
-    }
-    public void accept(ASTVisitor visitor) throws SemanticException {
+    public Block getBody() { return body; }
+
     @Override
+    public void accept(ASTVisitor visitor) throws SemanticException {
         visitor.visit(this);
-            param.accept(visitor);
         for (Param param : params) {
+            param.accept(visitor);
         }
         body.accept(visitor);
     }
