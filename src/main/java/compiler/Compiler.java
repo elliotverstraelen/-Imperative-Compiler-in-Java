@@ -163,22 +163,30 @@ public class Compiler {
     public void semanticAnalysis() throws Parser.ParserException {
         System.out.println("Testing semantic Analysis...");
         // Basic example
-        System.out.println("--Basic example--");
+        System.out.println("--Basic examples--");
         String input = "var x int = 2; var y int = ((3 + 4) * 5);";
+        System.out.println("Input: " + input);
         analyseProgram(parseInput(input));
         input = "var x int = 2; x = (3 + 4);";
+        System.out.println("Input: " + input);
         analyseProgram(parseInput(input));
 
         // Basing (wrong) example
         System.out.println("--Basic (wrong) examples--");
         input = "var x int = \"hello\"; var y bool = 10;";
+        System.out.println("Input: " + input);
         analyseProgram(parseInput(input));
         input = "var x int = 1; var x int = 2;";
+        System.out.println("Input: " + input);
+        analyseProgram(parseInput(input));
+        input = "var x int = 1; var y int = x + z;";
+        System.out.println("Input: " + input);
         analyseProgram(parseInput(input));
 
         // More advanced example
         System.out.println("--More advanced example--");
         input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
+        System.out.println("Input: " + input);
         analyseProgram(parseInput(input));
 
         // Example using "code_example.lang" file

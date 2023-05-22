@@ -57,8 +57,8 @@ public class Parser {
         while (lookahead.getToken() != EOF) {
             switch (lookahead.getToken()) {
                 case KEYWORD_RECORD -> this.program.add(parseRecordDecl());
-                case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.add(parseGeneralDecl(true));
-                case IDENTIFIER -> this.program.add(parseGeneralDecl(false));
+                case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.add(parseGeneralDecl());
+                case IDENTIFIER -> this.program.add(parseAssignment());
                 case KEYWORD_PROC -> this.program.add(parseProcDecl());
                 case SYMBOL_SEMICOLON -> match(SYMBOL_SEMICOLON);
                 default -> throw new ParserException("Expected a declaration but got " + lookahead.getToken());
@@ -123,19 +123,11 @@ public class Parser {
      * Grammar: GeneralDecl -> (const | var | val) Identifier Type = Expr ;
      * @return GeneralDecl - General declaration
      */
-    private GeneralDecl parseGeneralDecl(boolean newDecl) throws ParserException {
-        Lexer.Token name;
-        String identifier;
-        Type type = null;
-        if (newDecl) {
-            name = lookahead.getToken();
-            match(name);
-            identifier = match(IDENTIFIER).getLexeme();
-            type = parseType();
-        } else {
-            name = IDENTIFIER;
-            identifier = match(IDENTIFIER).getLexeme();
-        }
+    private GeneralDecl parseGeneralDecl() throws ParserException {
+        Lexer.Token name = lookahead.getToken();
+        match(name);
+        String identifier = match(IDENTIFIER).getLexeme();
+        Type type = parseType();
         match(SYMBOL_ASSIGN);
         Expr value;
         if (lookahead.getToken() == IDENTIFIER){
@@ -163,9 +155,28 @@ public class Parser {
             case KEYWORD_CONST -> new ConstDecl(type, identifier, value);
             case KEYWORD_VAR -> new VarDecl(type, identifier, value);
             case KEYWORD_VAL -> new ValDecl(type, identifier, value);
-            case IDENTIFIER -> new VarDecl(type, identifier, value); // TODO: Check assignment handling
             default -> throw new ParserException("Unexpected declaration type: " + name);
         };
+    }
+
+    /**
+     * Parses an assignment
+     * @return GeneralDecl - Assignment declaration object
+     */
+    private GeneralDecl parseAssignment() throws ParserException {
+        Lexer.Token name = IDENTIFIER;
+        String identifier = match(IDENTIFIER).getLexeme();
+        Type type = null;
+        for (GeneralDecl decl : program.getGlobalDecls()) {
+            if (decl.getIdentifier().equals(identifier)) {
+                type = decl.getType();
+                break;
+            }
+            // Note : if no declaration is found, the type is null
+        }
+        match(SYMBOL_ASSIGN);
+        Expr value = parseExpr(null);
+        return new Assignment(type, identifier, value);
     }
 
     /**
@@ -261,14 +272,10 @@ public class Parser {
             }
             case IDENTIFIER -> {
                 match(IDENTIFIER);
-                if (lookahead.getToken() == SYMBOL_LEFT_PARENTHESIS) {
-                    return parseProcCall();
-                } else {
-                    return parseAssignment();
-                }
+                return parseProcCall();
             }
             case KEYWORD_VAR, KEYWORD_VAL, KEYWORD_CONST -> {
-                return parseGeneralDecl(true);
+                return parseGeneralDecl();
             }
             case KEYWORD_RETURN -> {
                 return parseReturn();
@@ -338,49 +345,6 @@ public class Parser {
         match(SYMBOL_RIGHT_PARENTHESIS);
         Block body = parseBlock();
         return new For(KEYWORD_FOR, init, end, step, body);
-    }
-
-    /**
-     * Parses an assignment
-     * Grammar: Assignment -> Left "=" Expr
-     * @return Stmt - Assignment object
-     */
-    private Stmt parseAssignment() throws ParserException {
-        Object left = parseLeft();
-        match(SYMBOL_ASSIGN);
-        Expr value = parseExpr(null);
-        match(SYMBOL_SEMICOLON);
-        return new Assignment(SYMBOL_ASSIGN, left, value);
-    }
-
-    /**
-     * Parses the left part of an assignment
-     * Grammar: identifier | Left "[" Expr "]" | Left "." identifier
-     * @return Object - Left part of an assignment TODO: precise type
-     */
-    private Stmt parseLeft() throws ParserException {
-        switch (lookahead.getToken()) {
-            case IDENTIFIER -> {
-                String varName = lookahead.getLexeme();
-                match(IDENTIFIER);
-                return new Left(IDENTIFIER, varName);
-            }
-            case SYMBOL_LEFT_BRACKET -> {
-                // Array access
-                match(SYMBOL_LEFT_BRACKET);
-                Expr index = parseExpr(null);
-                match(SYMBOL_RIGHT_BRACKET);
-                return new ArrayAccess(ARRAY, null, index); // Identifier is null because as it is supposed to be the closest identifier in the AST
-            }
-            case SYMBOL_DOT -> {
-                // Field access
-                match(SYMBOL_DOT);
-                String field = lookahead.getLexeme();
-                match(IDENTIFIER);
-                return new RecordAccess(RECORD, null, field);
-            }
-            default -> throw new ParserException("Expected an identifier, a left bracket or a dot but got " + lookahead.getToken());
-        }
     }
 
     /**

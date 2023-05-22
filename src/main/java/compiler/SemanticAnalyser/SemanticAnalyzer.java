@@ -96,11 +96,11 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     public void visit(GeneralDecl decl, String declExpr) throws SemanticException {
         String declName = decl.getIdentifier();
-        String declType = decl.getValue().toString();
+        String declType = decl.getType().getName();
         if (declType.equals("BinaryExpr")){
             declType = visit((BinaryExpr) decl.getValue());
         }
-        String valueType = decl.getValue().getType().toString();
+        String valueType = decl.getValue().getType().getName();
         if (valueType.equals("BinaryExpr")){
             valueType = visit((BinaryExpr) decl.getValue());
         }
@@ -208,8 +208,6 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((ProcCall) stmt);
         } else if (stmt instanceof ReturnStmt) {
             visit((ReturnStmt) stmt);
-        } else if (stmt instanceof Assignment) {
-            visit((Assignment) stmt);
         }
     }
 
@@ -217,7 +215,7 @@ public class SemanticAnalyzer implements ASTVisitor {
         // Perform semantic analysis for assignment statements here.
         // (e.g., checking for uninitialized variables, type compatibility, etc.)
         //String varName = assignStmt.getLeft();
-        String identifier = ((Left) assignStmt.getLeft()).getIdentifier();
+        String identifier = assignStmt.getIdentifier();
         if (!symbolTable.containsKey(identifier)){
             throw new SemanticException("Variable " + identifier + " is not initialized.");
         }
@@ -413,46 +411,38 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     public String visit(BinaryExpr binaryExpr) throws SemanticException {
         // Perform semantic analysis for binary expressions
-        String leftType = binaryExpr.getLeft().getType().toString();
+
+        // Identify the type of the left hand side of the expression
+        String leftType = binaryExpr.getLeft().getType().getName();
         if (leftType.equals("BinaryExpr")) {
             leftType = visit((BinaryExpr) binaryExpr.getLeft());
         }
-        String rightType = binaryExpr.getRight().getType().toString();
+
+        if (leftType.equals("identifier")) {
+            try {
+                leftType = symbolTable.get(((IdentifierExpr) binaryExpr.getLeft()).getIdentifier()).getName();
+            } catch (NullPointerException e) {
+                throw new UndefinedIdentifierException("Undeclared identifier: " + ((IdentifierExpr) binaryExpr.getLeft()).getIdentifier());
+            }
+        }
+
+        // Identify the type of the right hand side of the expression
+        String rightType = binaryExpr.getRight().getType().getName();
         if (rightType.equals("BinaryExpr")) {
             rightType = visit((BinaryExpr) binaryExpr.getRight());
         }
 
-        // Identify the type of the left hand of the expression
-        if (leftType.equals("IdentifierExpr")) {
-            String identifier = ((IdentifierExpr) binaryExpr.getLeft()).getIdentifier();
-            if (!symbolTable.containsKey(identifier)) {
-                throw new SemanticException("Variable " + identifier + " is not initialized.");
-            }
-            leftType = symbolTable.get(identifier).toString();
-        } else {
-            leftType = binaryExpr.getLeft().getType().toString();
-            if (leftType.equals("BinaryExpr")) {
-                leftType = visit((BinaryExpr) binaryExpr.getLeft());
-            }
-        }
-
-        // Identify the type of the right hand of the expression
-        if (rightType.equals("IdentifierExpr")) {
-            String identifier = ((IdentifierExpr) binaryExpr.getRight()).getIdentifier();
-            if (!symbolTable.containsKey(identifier)) {
-                throw new SemanticException("Variable " + identifier + " is not initialized.");
-            }
-            rightType = symbolTable.get(identifier).toString();
-        } else {
-            rightType = binaryExpr.getRight().getType().toString();
-            if (rightType.equals("BinaryExpr")) {
-                rightType = visit((BinaryExpr) binaryExpr.getLeft());
+        if (rightType.equals("identifier")) {
+            try {
+                rightType = symbolTable.get(((IdentifierExpr) binaryExpr.getRight()).getIdentifier()).getName();
+            } catch (NullPointerException e) {
+                throw new UndefinedIdentifierException("Undeclared identifier: " + ((IdentifierExpr) binaryExpr.getRight()).getIdentifier());
             }
         }
 
         // Check if the two types are the same
         if (!leftType.equals(rightType)) {
-            throw new SemanticException("Type mismatch. Found " + leftType + " and " + rightType + ".");
+            throw new UndefinedIdentifierException("Type mismatch. Found " + leftType + " and " + rightType + ".");
         }
         return leftType;
     }

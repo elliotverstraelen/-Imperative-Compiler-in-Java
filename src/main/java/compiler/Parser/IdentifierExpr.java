@@ -4,7 +4,7 @@ public class IdentifierExpr extends Expr {
     protected final String identifier; // Identifier of the variable
 
     public IdentifierExpr(String identifier) {
-        super("IdentifierExpr");
+        super("identifier");
         this.identifier = identifier;
     }
 

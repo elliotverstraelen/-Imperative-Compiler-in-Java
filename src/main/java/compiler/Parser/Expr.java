@@ -9,9 +9,7 @@ public class Expr implements ASTNode{
     }
 
     public String toString() {
-        return "Expr{" +
-                "type=" + type +
-                '}';
+        return type.getName();
     }
 
     public Type getType() {

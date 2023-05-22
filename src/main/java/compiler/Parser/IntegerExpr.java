@@ -11,5 +11,4 @@ public class IntegerExpr extends Expr {
     public int getValue() {
         return value;
     }
-
 }
