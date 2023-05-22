@@ -2,6 +2,7 @@ package compiler.Parser;
 import compiler.Lexer.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static compiler.Lexer.Lexer.Token.*;
 
@@ -128,7 +129,7 @@ public class Parser {
         match(SYMBOL_ASSIGN);
         Expr value;
         if (lookahead.getToken() == IDENTIFIER){
-            // Array or record declaration
+            // Array, record declaration or expression involving an identifier
             String n = parseType().name;
             boolean isArray = n.contains("[]");
             if (!isArray && lookahead.getToken() == SYMBOL_LEFT_PARENTHESIS) {
@@ -142,7 +143,8 @@ public class Parser {
                 value = new ArrayExpr(new Type(arrayType), new ArrayList<>(initialCapacity));
                 match(SYMBOL_RIGHT_PARENTHESIS);
             } else {
-                value = parseExpr(null);
+                // Expression involving an identifier
+                value = parseExpr(new IdentifierExpr(n));
             }
         } else {
             value = parseExpr(null);
@@ -391,12 +393,21 @@ public class Parser {
      * @return Expr - Expression object
      */
     private Expr parseExpr(Expr prec) throws ParserException {
+        ArrayList<Lexer.Token> operators = new ArrayList<>(Arrays.asList(SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY,
+                SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL,
+                SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL, SYMBOL_NOT_EQUAL, KEYWORD_AND, KEYWORD_OR));
         switch (lookahead.getToken()) {
             case SYMBOL_LEFT_PARENTHESIS -> {
                 match(SYMBOL_LEFT_PARENTHESIS);
                 Expr expr = parseExpr(null);
                 if (lookahead.getToken() == SYMBOL_RIGHT_PARENTHESIS) {
                     match(SYMBOL_RIGHT_PARENTHESIS);
+                }
+                if (operators.contains(lookahead.getToken())) {
+                    expr = parseExpr(expr);
+                    if (lookahead.getToken() == SYMBOL_RIGHT_PARENTHESIS) {
+                        match(SYMBOL_RIGHT_PARENTHESIS);
+                    }
                 }
                 return expr;
             }
@@ -409,7 +420,7 @@ public class Parser {
             case INTEGER -> {
                 int value = Integer.parseInt(lookahead.getLexeme());
                 match(INTEGER);
-                if (lookahead.getToken() == SYMBOL_SEMICOLON){
+                if (lookahead.getToken() == SYMBOL_SEMICOLON || lookahead.getToken() == SYMBOL_RIGHT_PARENTHESIS){
                     return new IntegerExpr(value);
                 } else if (prec != null) {
                     Lexer.Token operator = lookahead.getToken();
@@ -473,7 +484,7 @@ public class Parser {
                     }
                 }
                 if (lookahead.getToken() == SYMBOL_SEMICOLON){
-                    return new IdentifierExpr(lookahead.getLexeme());
+                    return new IdentifierExpr(id.getLexeme());
                 } else if (prec != null) {
                     Lexer.Token operator = lookahead.getToken();
                     match(operator);

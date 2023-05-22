@@ -6,4 +6,10 @@ public class Type {
     public Type(String name) {
         this.name = name;
     }
+
+    public String toString() {
+        return "Type{" +
+                "name=" + name +
+                '}';
+    }
 }

@@ -11,6 +11,12 @@ public class Expr {
     public Expr(String type) {
         this.type = type;
     }
+
+    public String toString() {
+        return "Expr{" +
+                "type=" + type +
+                '}';
+    }
 }
 
 class BinaryExpr extends Expr {
@@ -24,6 +30,14 @@ class BinaryExpr extends Expr {
         this.right = right;
         this.operator = operator;
     }
+
+    public String toString() {
+        return "{" +
+                (left == null ? null : left.toString()) +
+                operator +
+                (right == null ? null : right.toString()) +
+                '}';
+    }
 }
 
 class IntegerExpr extends Expr {
@@ -32,6 +46,10 @@ class IntegerExpr extends Expr {
     public IntegerExpr(int value) {
         super("IntegerExpr");
         this.value = value;
+    }
+
+    public String toString() {
+        return "{" + value + '}';
     }
 }
 
@@ -42,6 +60,10 @@ class RealExpr extends Expr {
         super("RealExpr");
         this.value = value;
     }
+
+    public String toString() {
+        return "{" + value + '}';
+    }
 }
 
 class BooleanExpr extends Expr {
@@ -50,6 +72,10 @@ class BooleanExpr extends Expr {
     public BooleanExpr(boolean value) {
         super("BooleanExpr");
         this.value = value;
+    }
+
+    public String toString() {
+        return "{" + value + '}';
     }
 }
 
@@ -60,6 +86,10 @@ class StringExpr extends Expr {
         super("StringExpr");
         this.value = value;
     }
+
+    public String toString() {
+        return "{" + value + '}';
+    }
 }
 
 class IdentifierExpr extends Expr {
@@ -68,6 +98,10 @@ class IdentifierExpr extends Expr {
     public IdentifierExpr(String identifier) {
         super("IdentifierExpr");
         this.identifier = identifier;
+    }
+
+    public String toString() {
+        return "{" + identifier + '}';
     }
 }
 
@@ -80,6 +114,10 @@ class ArrayExpr extends Expr {
         this.type = type;
         this.content = content;
     }
+
+    public String toString() {
+        return "{" + type.name + "[" + content.toString() + "]}";
+    }
 }
 
 class RecordExpr extends Expr {
@@ -88,5 +126,9 @@ class RecordExpr extends Expr {
     public RecordExpr(String type, ArrayList<RecordEntry> content) {
         super(type);
         this.content = content;
+    }
+
+    public String toString() {
+        return "{" + content.toString() + '}';
     }
 }

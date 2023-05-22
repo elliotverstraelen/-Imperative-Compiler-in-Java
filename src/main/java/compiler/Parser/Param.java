@@ -8,4 +8,11 @@ public class Param {
         this.name = name;
         this.type = type;
     }
+
+    public String toString() {
+        return "Param{" +
+                "name=" + name +
+                ", type=" + type.name +
+                '}';
+    }
 }

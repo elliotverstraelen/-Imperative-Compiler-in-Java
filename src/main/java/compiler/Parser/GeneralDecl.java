@@ -15,4 +15,13 @@ public class GeneralDecl {
         this.identifier = identifier;
         this.value = value;
     }
+
+    public String toString() {
+        return "GeneralDecl{" +
+                "name=" + name +
+                ", type=" + type.name +
+                ", identifier=" + identifier +
+                ", value=" + value +
+                '}';
+    }
 }

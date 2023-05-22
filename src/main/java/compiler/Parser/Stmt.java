@@ -9,6 +9,12 @@ public class Stmt {
     public Stmt(Lexer.Token name) {
         this.name = name;
     }
+
+    public String toString() {
+        return "Stmt{" +
+                "name=" + name +
+                '}';
+    }
 }
 
 class CtrlStruct extends Stmt {
@@ -20,6 +26,14 @@ class CtrlStruct extends Stmt {
         this.condition = condition;
         this.body = body;
     }
+
+    public String toString() {
+        return "CtrlStruct{" +
+                "name=" + name +
+                ", condition=" + condition.toString() +
+                ", body=" + body.toString() +
+                '}';
+    }
 }
 
 class For extends CtrlStruct {
@@ -29,6 +43,17 @@ class For extends CtrlStruct {
         // Condition represents the condition of the for loop as a binary expression
         super(name, new BinaryExpr(init, end, Lexer.Token.SYMBOL_EQUAL), body);
         this.step = step;
+    }
+
+    public String toString() {
+        BinaryExpr cnd = (BinaryExpr) condition;
+        return "For{" +
+                "name=" + name +
+                ", init=" + cnd.left.toString() +
+                ", end=" + cnd.right.toString() +
+                ", step=" + step.toString() +
+                ", body=" + body.toString() +
+                '}';
     }
 }
 
@@ -40,6 +65,14 @@ class Assignment extends Stmt {
         super(name);
         this.left = left;
         this.value = value;
+    }
+
+    public String toString() {
+        return "Assignment{" +
+                "name=" + name +
+                ", left=" + left.toString() +
+                ", value=" + value.toString() +
+                '}';
     }
 }
 

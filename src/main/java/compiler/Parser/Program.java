@@ -1,7 +1,7 @@
 package compiler.Parser;
 
 import java.util.ArrayList;
-class Program {
+public class Program {
     // Grammar : program -> procDecl* constDecl* recordDecl* globalDecl*
     private final ArrayList<ProcDecl> procDeclDecls;
     private final ArrayList<RecordT> recordDecls;
@@ -16,13 +16,19 @@ class Program {
         return procDeclDecls;
     }
 
+    public boolean hasProcDeclDecls() { return !procDeclDecls.isEmpty(); }
+
     public ArrayList<RecordT> getRecordDecls() {
         return recordDecls;
     }
+    
+    public boolean hasRecordDecls() { return !recordDecls.isEmpty(); }
 
     public ArrayList<GeneralDecl> getGlobalDecls() {
         return globalDecls;
     }
+    
+    public boolean hasGlobalDecls() { return !globalDecls.isEmpty(); }
 
     public void add(ProcDecl procDecl) {
         procDeclDecls.add(procDecl);
@@ -34,5 +40,14 @@ class Program {
 
     public void add(GeneralDecl globalDecl) {
         globalDecls.add(globalDecl);
+    }
+
+    @Override
+    public String toString() {
+        return "Program{" +
+                "procDeclDecls=" + procDeclDecls +
+                ", recordDecls=" + recordDecls +
+                ", globalDecls=" + globalDecls +
+                '}';
     }
 }

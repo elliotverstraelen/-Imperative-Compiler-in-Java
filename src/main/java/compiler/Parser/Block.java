@@ -7,4 +7,10 @@ class Block {
     public Block(ArrayList<Stmt> statements) {
         this.statements = statements;
     }
+
+    public String toString() {
+        return "Block{" +
+                "statements=" + statements.toString() +
+                '}';
+    }
 }

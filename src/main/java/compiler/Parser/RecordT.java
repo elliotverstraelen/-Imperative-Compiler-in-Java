@@ -10,6 +10,13 @@ public class RecordT {
         this.identifier = identifier;
         this.fields = fields;
     }
+
+    public String toString() {
+        return "RecordT{" +
+                "identifier=" + identifier +
+                ", fields=" + fields.toString() +
+                '}';
+    }
 }
 
 class RecordEntry {
@@ -21,5 +28,13 @@ class RecordEntry {
         this.identifier = identifier;
         this.type = type;
         this.value = value;
+    }
+
+    public String toString() {
+        return "RecordEntry{" +
+                "identifier=" + identifier +
+                ", type=" + type +
+                ", value=" + value +
+                '}';
     }
 }
