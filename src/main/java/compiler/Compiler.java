@@ -182,6 +182,9 @@ public class Compiler {
         input = "var x int = 1; var y int = x + z;";
         System.out.println("Input: " + input);
         analyseProgram(parseInput(input));
+        input = "x = 1;";
+        System.out.println("Input: " + input);
+        analyseProgram(parseInput(input));
 
         // More advanced example
         System.out.println("--More advanced example--");

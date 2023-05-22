@@ -83,6 +83,8 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((ProcDecl) generalDecl);
         } else if (generalDecl instanceof ConstDecl){
             visit((ConstDecl) generalDecl);
+        } else if (generalDecl instanceof Assignment){
+            visit((Assignment) generalDecl);
         } /*else if (generalDecl instanceof RecordT){ // RecordT is a type not a declaration
             visit((RecordT) generalDecl);
         } */
