@@ -3,6 +3,8 @@ import compiler.Lexer.Lexer;
 import compiler.Lexer.Symbol;
 import compiler.Parser.Parser;
 import compiler.Parser.Program;
+import compiler.SemanticAnalyser.SemanticAnalyzer;
+import compiler.Exceptions.SemanticException;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -55,7 +57,27 @@ public class Compiler {
         printLexer(lexer, symbol); // Print all symbols
     }
 
-    public void parser(String[] args) {
+    public Program parseInput(String input) throws Parser.ParserException {
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Parser parser = new Parser(lexer);
+
+        return parser.getProgram();
+    }
+
+    public void analyseProgram(Program program) {
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+        System.out.println("Performing semantic analysis...");
+        try {
+            program.accept(semanticAnalyzer);
+            System.out.println("Semantic analysis completed successfully!");
+        } catch (SemanticException e) {
+            System.out.println(e.getMessage());
+            System.out.println("Semantic analysis failed!");
+        }
+    }
+
+    public void parser() throws Parser.ParserException {
         System.out.println("Testing parser...");
         // Basic example of how to use the lexer
         System.out.println("--Basic example--");
@@ -80,6 +102,7 @@ public class Compiler {
                 System.out.println(recordDecl);
             }
         }
+        parseInput(input);
 
         // More advanced example of how to use the lexer
         System.out.println("--More advanced example--");
@@ -104,6 +127,7 @@ public class Compiler {
                 System.out.println(recordDecl.toString());
             }
         }
+        parseInput(input);
 
         // Example using "code_example.lang" file
         System.out.println("--Example using \"code_example.lang\" file--");
@@ -133,11 +157,47 @@ public class Compiler {
                 System.out.println(recordDecl);
             }
         }
+        parseInput(input);
     }
 
-    public static void main(String[] args) {
+    public void semanticAnalysis() throws Parser.ParserException {
+        System.out.println("Testing semantic Analysis...");
+        // Basic example
+        System.out.println("--Basic example--");
+        String input = "var x int = 2; var y int = ((3 + 4) * 5);";
+        analyseProgram(parseInput(input));
+        input = "var x int = 2; x = (3 + 4);";
+        analyseProgram(parseInput(input));
+
+        // Basing (wrong) example
+        System.out.println("--Basic (wrong) examples--");
+        input = "var x int = \"hello\"; var y bool = 10;";
+        analyseProgram(parseInput(input));
+        input = "var x int = 1; var x int = 2;";
+        analyseProgram(parseInput(input));
+
+        // More advanced example
+        System.out.println("--More advanced example--");
+        input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
+        analyseProgram(parseInput(input));
+
+        // Example using "code_example.lang" file
+        Path filename = Path.of("code_example.lang");
+        System.out.println("--Example using \"code_example.lang\" file--");
+        try {
+            input = Files.readString(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        analyseProgram(parseInput(input));
+    }
+    
+
+    public static void main(String[] args) throws Parser.ParserException {
         Compiler compiler = new Compiler();
         compiler.lexer(args);
-        compiler.parser(args);
+        compiler.parser();
+        compiler.semanticAnalysis();
     }
 }

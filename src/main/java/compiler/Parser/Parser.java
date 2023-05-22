@@ -3,6 +3,7 @@ import compiler.Lexer.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static compiler.Lexer.Lexer.Token.*;
 
@@ -12,7 +13,7 @@ public class Parser {
 
     private final Program program; // Parsed program, as a list of record declarations, a list of variable declarations, and a list of procedures declarations
 
-    static class ParserException extends Exception {
+    public static class ParserException extends Exception {
         public ParserException(String message) {
             super(message);
         }
@@ -25,7 +26,7 @@ public class Parser {
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.lookahead = lexer.currentSymbol;
-        this.program = new Program(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        this.program = new Program();
         try {
             parseProgram();
         } catch (ParserException e) {
@@ -52,13 +53,14 @@ public class Parser {
      * Parses the program
      * A program consists of a list of record declarations, a list of variable declarations, and a list of procedures declarations
      */
-    private void parseProgram() throws ParserException {
+    public void parseProgram() throws ParserException {
         while (lookahead.getToken() != EOF) {
             switch (lookahead.getToken()) {
                 case KEYWORD_RECORD -> this.program.add(parseRecordDecl());
                 case KEYWORD_CONST, KEYWORD_VAR, KEYWORD_VAL -> this.program.add(parseGeneralDecl());
                 case KEYWORD_PROC -> this.program.add(parseProcDecl());
                 case SYMBOL_SEMICOLON -> match(SYMBOL_SEMICOLON);
+                case IDENTIFIER -> this.program.add(parseAssignment());
                 default -> throw new ParserException("Expected a declaration but got " + lookahead.getToken());
             }
         }
@@ -87,12 +89,12 @@ public class Parser {
         ArrayList<RecordEntry> recordFields = new ArrayList<>();
         String identifier = match(IDENTIFIER).getLexeme();
         Type type = parseType();
-        recordFields.add(new RecordEntry(identifier, type.name, null));
+        recordFields.add(new RecordEntry(identifier, type.getName(), null));
         match(SYMBOL_SEMICOLON);
         while (lookahead.getToken() != SYMBOL_RIGHT_BRACE) {
             identifier = match(IDENTIFIER).getLexeme();
             type = parseType();
-            recordFields.add(new RecordEntry(identifier, type.name, null));
+            recordFields.add(new RecordEntry(identifier, type.getName(), null));
             match(SYMBOL_SEMICOLON);
         }
         return recordFields;
@@ -130,7 +132,7 @@ public class Parser {
         Expr value;
         if (lookahead.getToken() == IDENTIFIER){
             // Array, record declaration or expression involving an identifier
-            String n = parseType().name;
+            String n = parseType().getName();
             boolean isArray = n.contains("[]");
             if (!isArray && lookahead.getToken() == SYMBOL_LEFT_PARENTHESIS) {
                 // Record declaration
@@ -139,7 +141,7 @@ public class Parser {
                 // In the case of an array declaration, the value between brackets is the length of the array
                 match(SYMBOL_LEFT_PARENTHESIS);
                 int initialCapacity = Integer.parseInt(match(INTEGER).getLexeme());
-                String arrayType = type.name.substring(0, type.name.length() - 2);
+                String arrayType = type.getName().substring(0, type.getName().length() - 2);
                 value = new ArrayExpr(new Type(arrayType), new ArrayList<>(initialCapacity));
                 match(SYMBOL_RIGHT_PARENTHESIS);
             } else {
@@ -149,7 +151,16 @@ public class Parser {
         } else {
             value = parseExpr(null);
         }
-        return new GeneralDecl(name, type, identifier, value);
+        GeneralDecl generalDecl = switch (name) {
+            case KEYWORD_CONST -> new ConstDecl(type, identifier, value);
+            case KEYWORD_VAR -> new VarDecl(type, identifier, value);
+            case KEYWORD_VAL -> new ValDecl(type, identifier, value);
+            default -> throw new ParserException("Unexpected declaration type: " + name);
+        };
+        if (lookahead.getToken() == SYMBOL_SEMICOLON) {
+            match(SYMBOL_SEMICOLON);
+        }
+        return generalDecl;
     }
 
     /**
@@ -165,7 +176,8 @@ public class Parser {
         match(SYMBOL_RIGHT_PARENTHESIS);
         Type type = parseType();
         Block block = parseBlock();
-        return new ProcDecl(identifier, params, type, block);
+        ProcDecl procDecl = new ProcDecl(type, identifier, params, block);
+        return procDecl;
     }
 
     /**
@@ -192,8 +204,8 @@ public class Parser {
      */
     private Param parseParam() throws ParserException {
         String name = lookahead.getLexeme();
-        Type type = parseType();
         match(IDENTIFIER);
+        Type type = parseType();
         return new Param(name, type);
     }
 
@@ -205,7 +217,7 @@ public class Parser {
      */
     private Block parseBlock() throws ParserException {
         match(SYMBOL_LEFT_BRACE);
-        ArrayList<Stmt> statements = parseStmts();
+        ArrayList<Object> statements = parseStmts();
         match(SYMBOL_RIGHT_BRACE);
         return new Block(statements);
     }
@@ -216,8 +228,8 @@ public class Parser {
      * Grammar: Stmts -> Stmt Stmts | e
      * @return ArrayList<Stmt> - List of all the statements
      */
-    private ArrayList<Stmt> parseStmts() throws ParserException {
-        ArrayList<Stmt> statements = new ArrayList<>();
+    private ArrayList<Object> parseStmts() throws ParserException {
+        ArrayList<Object> statements = new ArrayList<>();
         while(lookahead.getToken() != SYMBOL_RIGHT_BRACE) {
             statements.add(parseStmt());
         }
@@ -229,7 +241,7 @@ public class Parser {
      * Grammar: Stmt -> IfElse | While | For | Assignment ";" | ProcCall ";"
      * @return Stmt - Statement object
      */
-    private Stmt parseStmt() throws ParserException {
+    private Object parseStmt() throws ParserException {
         switch (lookahead.getToken()) {
             case KEYWORD_IF -> {
                 return parseIf();
@@ -251,8 +263,15 @@ public class Parser {
                     return parseAssignment();
                 }
             }
+            case KEYWORD_VAR, KEYWORD_VAL, KEYWORD_CONST -> {
+                return parseGeneralDecl();
+            }
             case KEYWORD_RETURN -> {
                 return parseReturn();
+            }
+            case SYMBOL_SEMICOLON -> {
+                match(SYMBOL_SEMICOLON);
+                return parseStmt();
             }
             default -> throw new ParserException("Expected a statement but got " + lookahead.getToken());
         }
@@ -324,7 +343,7 @@ public class Parser {
      */
     private Stmt parseAssignment() throws ParserException {
         Object left = parseLeft();
-        match(SYMBOL_EQUAL);
+        match(SYMBOL_ASSIGN);
         Expr value = parseExpr(null);
         match(SYMBOL_SEMICOLON);
         return new Assignment(SYMBOL_ASSIGN, left, value);
@@ -338,8 +357,9 @@ public class Parser {
     private Stmt parseLeft() throws ParserException {
         switch (lookahead.getToken()) {
             case IDENTIFIER -> {
+                String varName = lookahead.getLexeme();
                 match(IDENTIFIER);
-                return new Left(IDENTIFIER, lookahead.getLexeme());
+                return new Left(IDENTIFIER, varName);
             }
             case SYMBOL_LEFT_BRACKET -> {
                 // Array access
@@ -400,8 +420,13 @@ public class Parser {
             case SYMBOL_LEFT_PARENTHESIS -> {
                 match(SYMBOL_LEFT_PARENTHESIS);
                 Expr expr = parseExpr(null);
+                List<Lexer.Token> op = List.of(SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL);
                 if (lookahead.getToken() == SYMBOL_RIGHT_PARENTHESIS) {
                     match(SYMBOL_RIGHT_PARENTHESIS);
+                } else if (op.contains(lookahead.getToken())) {
+                    Lexer.Token operator = lookahead.getToken();
+                    match(operator);
+                    expr = parseExpr(new BinaryExpr(expr, null, operator));
                 }
                 if (operators.contains(lookahead.getToken())) {
                     expr = parseExpr(expr);
@@ -414,19 +439,21 @@ public class Parser {
             case SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL, KEYWORD_AND, KEYWORD_OR -> {
                 Lexer.Token operator = lookahead.getToken();
                 match(operator);
-                Expr right = parseExpr(prec);
-                return new BinaryExpr(prec, right, operator);
+                if (prec != null) {
+                    return parseExpr(new BinaryExpr(prec, null, operator));
+                } else {
+                    return parseExpr(prec);
+                }
             }
             case INTEGER -> {
                 int value = Integer.parseInt(lookahead.getLexeme());
                 match(INTEGER);
                 if (lookahead.getToken() == SYMBOL_SEMICOLON || lookahead.getToken() == SYMBOL_RIGHT_PARENTHESIS){
                     return new IntegerExpr(value);
-                } else if (prec != null) {
+                } else if (operators.contains(lookahead.getToken())) {
                     Lexer.Token operator = lookahead.getToken();
                     match(operator);
-                    Expr right = parseExpr(new IntegerExpr(value));
-                    return parseExpr(new BinaryExpr(prec, right, operator));
+                    return parseExpr(new BinaryExpr(new IntegerExpr(value), null, operator));
                 } else {
                     return parseExpr(new IntegerExpr(value));
                 }
@@ -434,13 +461,18 @@ public class Parser {
             case REAL -> {
                 double value = Double.parseDouble(lookahead.getLexeme());
                 match(REAL);
-                if (lookahead.getToken() == SYMBOL_SEMICOLON){
+                if (prec != null) {
+                    if (prec instanceof BinaryExpr) {
+                        return parseExpr(new BinaryExpr(((BinaryExpr) prec).getLeft(), new RealExpr(value), ((BinaryExpr) prec).getOperator()));
+                    } else {
+                        return parseExpr(new BinaryExpr(prec, new RealExpr(value), lookahead.getToken()));
+                    }
+                } else if (lookahead.getToken() == SYMBOL_SEMICOLON){
                     return new RealExpr(value);
-                } else if (prec != null) {
+                } else if (operators.contains(lookahead.getToken())) {
                     Lexer.Token operator = lookahead.getToken();
                     match(operator);
-                    Expr right = parseExpr(new RealExpr(value));
-                    return parseExpr(new BinaryExpr(prec, right, operator));
+                    return parseExpr(new BinaryExpr(new RealExpr(value), null, operator));
                 } else {
                     return parseExpr(new RealExpr(value));
                 }
@@ -448,13 +480,18 @@ public class Parser {
             case BOOLEAN -> {
                 boolean value = Boolean.parseBoolean(lookahead.getLexeme());
                 match(BOOLEAN);
-                if (lookahead.getToken() == SYMBOL_SEMICOLON){
+                if (prec != null) {
+                    if (prec instanceof BinaryExpr) {
+                        return parseExpr(new BinaryExpr(((BinaryExpr) prec).getLeft(), new BooleanExpr(value), ((BinaryExpr) prec).getOperator()));
+                    } else {
+                        return parseExpr(new BinaryExpr(prec, new BooleanExpr(value), lookahead.getToken()));
+                    }
+                } else if (lookahead.getToken() == SYMBOL_SEMICOLON){
                     return new BooleanExpr(value);
-                } else if (prec != null) {
+                } else if (operators.contains(lookahead.getToken())) {
                     Lexer.Token operator = lookahead.getToken();
                     match(operator);
-                    Expr right = parseExpr(new BooleanExpr(value));
-                    return parseExpr(new BinaryExpr(prec, right, operator));
+                    return parseExpr(new BinaryExpr(new BooleanExpr(value), null, operator));
                 } else {
                     return parseExpr(new BooleanExpr(value));
                 }
@@ -462,13 +499,18 @@ public class Parser {
             case STRING -> {
                 String value = lookahead.getLexeme();
                 match(STRING);
-                if (lookahead.getToken() == SYMBOL_SEMICOLON){
+                if (prec != null) {
+                    if (prec instanceof BinaryExpr) {
+                        return parseExpr(new BinaryExpr(((BinaryExpr) prec).getLeft(), new StringExpr(value), ((BinaryExpr) prec).getOperator()));
+                    } else {
+                        return parseExpr(new BinaryExpr(prec, new StringExpr(value), lookahead.getToken()));
+                    }
+                } else if (lookahead.getToken() == SYMBOL_SEMICOLON){
                     return new StringExpr(value);
-                } else if (prec != null) {
+                } else if (operators.contains(lookahead.getToken())) {
                     Lexer.Token operator = lookahead.getToken();
                     match(operator);
-                    Expr right = parseExpr(new StringExpr(value));
-                    return parseExpr(new BinaryExpr(prec, right, operator));
+                    return parseExpr(new BinaryExpr(new StringExpr(value), null, operator));
                 } else {
                     return parseExpr(new StringExpr(value));
                 }
@@ -481,6 +523,13 @@ public class Parser {
                 switch (lookahead.getToken()){
                     case SYMBOL_MINUS, SYMBOL_PLUS, SYMBOL_MULTIPLY, SYMBOL_DIVIDE, SYMBOL_MODULO, SYMBOL_LESS_THAN, SYMBOL_GREATER_THAN, SYMBOL_LESS_THAN_OR_EQUAL, SYMBOL_GREATER_THAN_OR_EQUAL, SYMBOL_EQUAL, KEYWORD_AND, KEYWORD_OR -> {
                         return parseExpr(new IdentifierExpr(id.getLexeme()));
+                    }
+                    case SYMBOL_SEMICOLON -> {
+                        if (prec != null) {
+                            return parseExpr(new BinaryExpr(((BinaryExpr) prec).getLeft(), new IdentifierExpr(id.getLexeme()), ((BinaryExpr) prec).getOperator()));
+                        } else {
+                            return new IdentifierExpr(id.getLexeme());
+                        }
                     }
                 }
                 if (lookahead.getToken() == SYMBOL_SEMICOLON){
@@ -587,7 +636,7 @@ public class Parser {
         match(KEYWORD_RETURN);
         Expr value = parseExpr(null);
         match(SYMBOL_SEMICOLON);
-        return new Return(value);
+        return new ReturnStmt(value);
     }
 
     /**

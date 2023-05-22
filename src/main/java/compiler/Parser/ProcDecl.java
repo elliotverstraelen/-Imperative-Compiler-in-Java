@@ -25,3 +25,20 @@ public class ProcDecl {
                 '}';
     }
 }
+
+    public ArrayList<Param> getParams() {
+        return params;
+
+    }
+        return body;
+    public Block getBody() {
+    }
+    public void accept(ASTVisitor visitor) throws SemanticException {
+    @Override
+        visitor.visit(this);
+            param.accept(visitor);
+        for (Param param : params) {
+        }
+        body.accept(visitor);
+    }
+}

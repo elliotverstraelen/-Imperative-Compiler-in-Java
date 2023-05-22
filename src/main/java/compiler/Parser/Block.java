@@ -1,11 +1,23 @@
 package compiler.Parser;
 
+import compiler.Exceptions.SemanticException;
+
 import java.util.ArrayList;
 
-class Block {
-    public final ArrayList<Stmt> statements;
-    public Block(ArrayList<Stmt> statements) {
+public class Block {
+    protected final ArrayList<Object> statements;
+    public Block(ArrayList<Object> statements) {
         this.statements = statements;
+    }
+
+    public ArrayList<Object> getStatements() {
+        return statements;
+    }
+    public void accept(ASTVisitor visitor) throws SemanticException {
+        visitor.visit(this);
+        for (Object stmt : statements) {
+            ((ASTNode) stmt).accept(visitor);
+        }
     }
 
     public String toString() {

@@ -1,14 +1,17 @@
 package compiler.Parser;
 
+import compiler.Exceptions.SemanticException;
 import compiler.Lexer.Lexer;
 
 import java.util.ArrayList;
 
-public class Stmt {
-    public final Lexer.Token name;
+public class Stmt implements ASTNode{
+    protected final Lexer.Token name;
     public Stmt(Lexer.Token name) {
         this.name = name;
     }
+    public Lexer.Token getName() {
+        return name;
 
     public String toString() {
         return "Stmt{" +
@@ -36,13 +39,8 @@ class CtrlStruct extends Stmt {
     }
 }
 
-class For extends CtrlStruct {
-    public final Expr step;
-
-    public For(Lexer.Token name, Expr init, Expr end, Expr step, Block body) {
-        // Condition represents the condition of the for loop as a binary expression
-        super(name, new BinaryExpr(init, end, Lexer.Token.SYMBOL_EQUAL), body);
-        this.step = step;
+    public void accept(ASTVisitor visitor) throws SemanticException {
+        visitor.visit(this);
     }
 
     public String toString() {
@@ -107,19 +105,15 @@ class ArrayAccess extends Left {
 }
 
 class RecordAccess extends Left {
-    public final String field;
+    protected final String field;
 
     public RecordAccess(Lexer.Token name, String identifier, String field) {
         super(name, identifier);
         this.field = field;
     }
-}
 
-class Return extends Stmt {
-    public final Expr value;
-
-    public Return(Expr value) {
-        super(Lexer.Token.KEYWORD_RETURN);
-        this.value = value;
+    public String getField() {
+        return field;
     }
 }
+

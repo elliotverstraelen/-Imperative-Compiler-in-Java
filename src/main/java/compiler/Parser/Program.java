@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.Exceptions.SemanticException;
+
 import java.util.ArrayList;
 public class Program {
     // Grammar : program -> procDecl* constDecl* recordDecl* globalDecl*
@@ -11,9 +13,8 @@ public class Program {
         this.recordDecls = recordDecl;
         this.globalDecls = globalDecls;
     }
-
-    public ArrayList<ProcDecl> getProcDeclDecls() {
-        return procDeclDecls;
+    public List<Object> getContent() {
+        return content;
     }
 
     public boolean hasProcDeclDecls() { return !procDeclDecls.isEmpty(); }
@@ -24,8 +25,9 @@ public class Program {
     
     public boolean hasRecordDecls() { return !recordDecls.isEmpty(); }
 
-    public ArrayList<GeneralDecl> getGlobalDecls() {
-        return globalDecls;
+    @Override
+    public void accept(ASTVisitor visitor) throws SemanticException {
+        visitor.visit(this);
     }
     
     public boolean hasGlobalDecls() { return !globalDecls.isEmpty(); }

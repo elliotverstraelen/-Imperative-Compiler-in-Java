@@ -1,8 +1,10 @@
 package compiler.Parser;
 
-public class Param {
-    public final String name;
-    public final Type type;
+import compiler.Exceptions.SemanticException;
+
+public class Param implements ASTNode {
+    protected final String name;
+    protected final Type type;
 
     public Param(String name, Type type) {
         this.name = name;
@@ -14,5 +16,17 @@ public class Param {
                 "name=" + name +
                 ", type=" + type.name +
                 '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void accept(ASTVisitor visitor) throws SemanticException {
+        visitor.visit(this);
     }
 }

@@ -1,4 +1,4 @@
-Program     -> RecordDecl* GeneralDecl* procDecl*
+Program     -> RecordDecl* GeneralDecl* procDecl* Stmt*
 GeneralDecl -> (const | var | val) Identifier Type = Expr ;
 RecordDecl  -> "record" identifier "{" RecordFields* "}" ";"
 RecordField -> identifier Type ";"

@@ -1,15 +1,15 @@
 package compiler.Parser;
 
 import compiler.Lexer.Lexer;
+import compiler.Exceptions.SemanticException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-public class Expr {
-    public final String type; // Type of expression
+public class Expr implements ASTNode{
+    protected Type type; // Type of expression
 
-    public Expr(String type) {
-        this.type = type;
+    public Expr(String typeName) {
+        this.type = new Type(typeName);
     }
 
     public String toString() {
@@ -19,17 +19,12 @@ public class Expr {
     }
 }
 
-class BinaryExpr extends Expr {
-    public final Expr left; // Left expression
-    public final Expr right; // Right expression
-    public final Lexer.Token operator; // Operator
-
-    public BinaryExpr(Expr left, Expr right, Lexer.Token operator) {
-        super("BinaryExpr");
-        this.left = left;
-        this.right = right;
-        this.operator = operator;
+    public Type getType() {
+        return this.type;
     }
+    @Override
+    public void accept(ASTVisitor visitor) throws SemanticException {
+        visitor.visit(this);
 
     public String toString() {
         return "{" +
@@ -66,8 +61,6 @@ class RealExpr extends Expr {
     }
 }
 
-class BooleanExpr extends Expr {
-    public final boolean value; // Value of the boolean
 
     public BooleanExpr(boolean value) {
         super("BooleanExpr");

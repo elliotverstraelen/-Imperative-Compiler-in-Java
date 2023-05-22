@@ -1,14 +1,21 @@
 package compiler.Parser;
 
+import compiler.Exceptions.SemanticException;
+
 import java.util.ArrayList;
 
-public class RecordT {
-    public final String identifier;
-    public final ArrayList<RecordEntry> fields;
+public class RecordT extends GeneralDecl{
+    private final String identifier;
+    private final ArrayList<RecordEntry> fields;
 
     public RecordT(String identifier, ArrayList<RecordEntry> fields) {
+        // Assuming the RecordT has a null Type and Expr value
+        super(null, identifier, null);
         this.identifier = identifier;
         this.fields = fields;
+    }
+    public String getIdentifier() {
+        return identifier;
     }
 
     public String toString() {
@@ -19,15 +26,15 @@ public class RecordT {
     }
 }
 
-class RecordEntry {
-    public final String identifier;
-    public final String type;
-    public Object value;
-
-    public RecordEntry(String identifier, String type, Object value) {
-        this.identifier = identifier;
-        this.type = type;
-        this.value = value;
+    public ArrayList<RecordEntry> getFields() {
+        return fields;
+    }
+    @Override
+    public void accept(ASTVisitor visitor) throws SemanticException {
+        visitor.visit(this);
+        for (RecordEntry entry : fields) {
+            entry.accept(visitor);
+        }
     }
 
     public String toString() {
@@ -38,3 +45,4 @@ class RecordEntry {
                 '}';
     }
 }
+
