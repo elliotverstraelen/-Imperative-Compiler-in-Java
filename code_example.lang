@@ -81,7 +81,7 @@ val e int = a*2;    // value
 // array or record must be created.
 
 var c int[] = int[](5);  // new array of length 5
-//var d Person = Person("me", Point(3,7), int[](a*2));  // new record
+var d Person = Person("me", Point(3,7), int[](a*2));  // new record
 
 // Procedures:
 // Procedures have parameters and a return type. The return type

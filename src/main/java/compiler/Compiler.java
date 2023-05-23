@@ -87,20 +87,8 @@ public class Compiler {
         Lexer lexer = new Lexer(reader); // Create a lexer for the reader
         Parser parser = new Parser(lexer);
         Program program = parser.getProgram();
-        if (program.hasGlobalDecls()) {
-            for (var globalDecl : program.getGlobalDecls()) {
-                System.out.println(globalDecl);
-            }
-        }
-        if (program.hasProcDecls()) {
-            for (var procDecl : program.getProcDecls()) {
-                System.out.println(procDecl);
-            }
-        }
-        if (program.hasRecordDecls()) {
-            for (var recordDecl : program.getRecordDecls()) {
-                System.out.println(recordDecl);
-            }
+        for (Object obj : program.getContent()) {
+            System.out.println(obj);
         }
         parseInput(input);
 
@@ -112,20 +100,8 @@ public class Compiler {
         lexer = new Lexer(reader); // Create a lexer for the reader
         parser = new Parser(lexer);
         program = parser.getProgram();
-        if (program.hasGlobalDecls()) {
-            for (var globalDecl : program.getGlobalDecls()) {
-                System.out.println(globalDecl.toString());
-            }
-        }
-        if (program.hasProcDecls()) {
-            for (var procDecl : program.getProcDecls()) {
-                System.out.println(procDecl.toString());
-            }
-        }
-        if (program.hasRecordDecls()) {
-            for (var recordDecl : program.getRecordDecls()) {
-                System.out.println(recordDecl.toString());
-            }
+        for (Object obj : program.getContent()) {
+            System.out.println(obj);
         }
         parseInput(input);
 
@@ -142,20 +118,8 @@ public class Compiler {
         lexer = new Lexer(reader); // Create a lexer for the reader
         parser = new Parser(lexer);
         program = parser.getProgram();
-        if (program.hasGlobalDecls()) {
-            for (var globalDecl : program.getGlobalDecls()) {
-                System.out.println(globalDecl);
-            }
-        }
-        if (program.hasProcDecls()) {
-            for (var procDecl : program.getProcDecls()) {
-                System.out.println(procDecl);
-            }
-        }
-        if (program.hasRecordDecls()) {
-            for (var recordDecl : program.getRecordDecls()) {
-                System.out.println(recordDecl);
-            }
+        for (Object obj : program.getContent()) {
+            System.out.println(obj);
         }
         parseInput(input);
     }
@@ -183,6 +147,9 @@ public class Compiler {
         System.out.println("Input: " + input);
         analyseProgram(parseInput(input));
         input = "x = 1;";
+        System.out.println("Input: " + input);
+        analyseProgram(parseInput(input));
+        input = "record Point { x int; y int; } var p Point = Point(1, \"a\");"; // Wrong type in record
         System.out.println("Input: " + input);
         analyseProgram(parseInput(input));
 

@@ -71,13 +71,13 @@ public class Parser {
      * Grammar: RecordDecl -> record Identifier { RecordFields } ;
      * @return RecordDecl - Record declaration
      */
-    private RecordT parseRecordDecl() throws ParserException {
+    private RecordDecl parseRecordDecl() throws ParserException {
         match(KEYWORD_RECORD);
         Symbol identifier = match(IDENTIFIER);
         match(SYMBOL_LEFT_BRACE);
         ArrayList<RecordEntry> recordFields = parseRecordFields();
         match(SYMBOL_RIGHT_BRACE);
-        return new RecordT(identifier.getLexeme(), recordFields);
+        return new RecordDecl(identifier.getLexeme(), recordFields);
     }
 
     /**
@@ -132,17 +132,22 @@ public class Parser {
         Expr value;
         if (lookahead.getToken() == IDENTIFIER){
             // Array, record declaration or expression involving an identifier
-            String n = parseType().getName();
+            String n = type.getName();
             boolean isArray = n.contains("[]");
-            if (!isArray && lookahead.getToken() == SYMBOL_LEFT_PARENTHESIS) {
+            String arrayType = isArray ? n.substring(0, n.length() - 2) : n;
+            // If it is not an array, and the first letter is uppercase, it is a record declaration
+            if (!isArray && Character.isUpperCase(arrayType.charAt(0))) {
                 // Record declaration
+                match(IDENTIFIER);
                 value = parseRecordAssignment(n);
             } else if (isArray) {
                 // In the case of an array declaration, the value between brackets is the length of the array
+                match(IDENTIFIER);
+                match(SYMBOL_LEFT_BRACKET);
+                match(SYMBOL_RIGHT_BRACKET);
                 match(SYMBOL_LEFT_PARENTHESIS);
-                int initialCapacity = Integer.parseInt(match(INTEGER).getLexeme());
-                String arrayType = type.getName().substring(0, type.getName().length() - 2);
-                value = new ArrayExpr(new Type(arrayType), new ArrayList<>(initialCapacity));
+                Expr initialCapacity = parseExpr(null);
+                value = new ArrayExpr(new Type(arrayType), initialCapacity, new ArrayList<>());
                 match(SYMBOL_RIGHT_PARENTHESIS);
             } else {
                 // Expression involving an identifier
@@ -416,7 +421,13 @@ public class Parser {
             case INTEGER -> {
                 int value = Integer.parseInt(lookahead.getLexeme());
                 match(INTEGER);
-                if (lookahead.getToken() == SYMBOL_SEMICOLON || lookahead.getToken() == SYMBOL_RIGHT_PARENTHESIS){
+                if (prec != null) {
+                    if (prec instanceof BinaryExpr) {
+                        return parseExpr(new BinaryExpr(((BinaryExpr) prec).getLeft(), new IntegerExpr(value), ((BinaryExpr) prec).getOperator()));
+                    } else {
+                        return parseExpr(new BinaryExpr(prec, new IntegerExpr(value), lookahead.getToken()));
+                    }
+                } else if (lookahead.getToken() == SYMBOL_SEMICOLON || lookahead.getToken() == SYMBOL_RIGHT_PARENTHESIS){
                     return new IntegerExpr(value);
                 } else if (operators.contains(lookahead.getToken())) {
                     Lexer.Token operator = lookahead.getToken();
@@ -534,7 +545,7 @@ public class Parser {
             match(SYMBOL_RIGHT_BRACKET);
         }
         ArrayList<Expr> elements = processBrackets(SYMBOL_LEFT_BRACKET, SYMBOL_RIGHT_BRACKET);
-        return new ArrayExpr(type, elements);
+        return new ArrayExpr(type, new Expr("int"), elements);
     }
 
     private ArrayList<Expr> processBrackets(Lexer.Token symbolLeftBracket, Lexer.Token symbolRightBracket) throws ParserException {
@@ -558,26 +569,48 @@ public class Parser {
     private Expr parseRecordAssignment(String record) throws ParserException {
         match(SYMBOL_LEFT_PARENTHESIS);
         RecordExpr newRecord = new RecordExpr(record, new ArrayList<>());
-        while(lookahead.getToken() != SYMBOL_RIGHT_PARENTHESIS) {
-            // Create a new record with the correct fields
-            String value = lookahead.getLexeme();
-            String type = findType(lookahead.getToken());
-            Expr subrecord = null;
-            if (type == null && !value.equals("int") && !value.equals("real") && !value.equals("boolean") && !value.equals("string") && !value.equals("[") && !value.equals("]")) {
-                // Could be a record
-                match(IDENTIFIER);
-                type = value;
-                subrecord = parseRecordAssignment(value);
-            }
-            // Put the value in the correct field (should be in order)
-            newRecord.content.add(new RecordEntry(value, type, subrecord));
+        int i = 0;
+        while(lookahead.getToken() != SYMBOL_RIGHT_PARENTHESIS && lookahead.getToken() != SYMBOL_SEMICOLON) {
+            newRecord.content.add(parseRecordEntry(i));
             match(lookahead.getToken());
             if (lookahead.getToken() == SYMBOL_COMMA) {
                 match(SYMBOL_COMMA);
             }
+            i++;
         }
-        match(SYMBOL_RIGHT_PARENTHESIS);
+        match(lookahead.getToken());
         return newRecord;
+    }
+
+    /**
+     * Parses a record entry
+     * @return RecordEntry - Record entry object
+     */
+    private RecordEntry parseRecordEntry(int index) throws ParserException {
+        // Create a new record with the correct fields
+        String value = lookahead.getLexeme();
+        String type = findType(lookahead.getToken());
+        Expr content = null;
+        if (type == null && !value.equals("int") && !value.equals("real") && !value.equals("boolean") && !value.equals("string")) {
+            // Field is another record
+            match(IDENTIFIER);
+            type = value;
+            content = parseRecordAssignment(value);
+        } else if (value.equals("int") || value.equals("real") || value.equals("boolean") || value.equals("string")) {
+            // Field is an array declaration
+            match(IDENTIFIER);
+            match(SYMBOL_LEFT_BRACKET);
+            match(SYMBOL_RIGHT_BRACKET);
+            match(SYMBOL_LEFT_PARENTHESIS);
+            type = value + "[]";
+            Expr initialCapacity = parseExpr(null);
+            content = new ArrayExpr(new Type(type), initialCapacity, new ArrayList<>());
+        }
+        // Put the value in the correct field (should be in order)
+        if (content == null) {
+            content = new Expr(value);
+        }
+        return new RecordEntry(Integer.toString(index), type, content);
     }
 
     /**

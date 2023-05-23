@@ -1,12 +1,11 @@
 package compiler.Parser;
 
 import compiler.Exceptions.SemanticException;
+import compiler.Exceptions.TypeMismatchException;
 
 public interface ASTVisitor {
     void visit(Program program) throws SemanticException;
     void visit(GeneralDecl generalDecl) throws SemanticException;
-    void visit(RecordT recordT) throws SemanticException;
-    void visit(RecordEntry recordEntry) throws SemanticException;
 
     void visit(ValDecl valDecl) throws SemanticException;
 
@@ -23,5 +22,6 @@ public interface ASTVisitor {
     void visit(Expr expr) throws SemanticException;
 
     void visit(Block block) throws SemanticException;
-    // Add other visit methods for other ASTNode types
+
+    void visit(RecordDecl recordDecl) throws SemanticException;
 }

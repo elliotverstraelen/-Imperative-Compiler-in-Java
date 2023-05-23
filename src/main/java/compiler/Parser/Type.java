@@ -11,8 +11,6 @@ public class Type {
     }
 
     public String toString() {
-        return "Type{" +
-                "name=" + name +
-                '}';
+        return name;
     }
 }

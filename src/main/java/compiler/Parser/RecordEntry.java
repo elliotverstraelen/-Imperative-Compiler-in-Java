@@ -2,12 +2,12 @@ package compiler.Parser;
 
 import compiler.Exceptions.SemanticException;
 
-public class RecordEntry implements ASTNode {
+public class RecordEntry {
     protected final String identifier;
     protected final Type type;
-    protected Object value;
+    protected Expr value;
 
-    public RecordEntry(String identifier, String type, Object value) {
+    public RecordEntry(String identifier, String type, Expr value) {
         this.identifier = identifier;
         this.type = new Type(type);
         this.value = value;
@@ -21,12 +21,8 @@ public class RecordEntry implements ASTNode {
         return type;
     }
 
-    public Object getValue() {
+    public Expr getValue() {
         return value;
-    }
-    @Override
-    public void accept(ASTVisitor visitor) throws SemanticException {
-        visitor.visit(this);
     }
 
     public String toString() {

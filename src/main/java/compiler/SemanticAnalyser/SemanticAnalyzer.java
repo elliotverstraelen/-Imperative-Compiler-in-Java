@@ -2,10 +2,8 @@ package compiler.SemanticAnalyser;
 
 import compiler.Exceptions.*;
 import compiler.Parser.*;
-import java.util.ArrayList;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class SemanticAnalyzer implements ASTVisitor {
 
@@ -20,32 +18,29 @@ public class SemanticAnalyzer implements ASTVisitor {
     }
 
     /**
-     * Visit method for RecordEntry nodes
-     * @param recordEntry: RecordEntry node
-     * @throws DuplicateFieldException : If duplicate field names are found
+     * Visit method for RecordDecl nodes (records and their fields)
+     * @param recordDecl: RecordDecl node
+     * @throws DuplicateRecordTypeException: If duplicate record types are found
+     * @throws DuplicateFieldException: If duplicate field names are found
      */
     @Override
-    public void visit(RecordEntry recordEntry) throws DuplicateFieldException {
-        // Perform semantic analysis for RecordEntry, duplicate field names
-        String fieldName = recordEntry.getIdentifier();
-        if (symbolTable.containsKey(fieldName)){
-            throw new DuplicateFieldException("Duplicate field name: " + fieldName);
-        }
-        symbolTable.put(fieldName, recordEntry.getType());
-    }
-
-    /**
-     * Perform semantic analysis for RecordT nodes
-     * @param recordT: RecordT node to visit
-     * @throws DuplicateRecordTypeException: If duplicate record type names are found
-     */
-    @Override
-    public void visit(RecordT recordT) throws DuplicateRecordTypeException {
-        String recordTypeName = recordT.getIdentifier();
+    public void visit(RecordDecl recordDecl) throws DuplicateRecordTypeException, DuplicateFieldException {
+        // Perform semantic analysis for RecordDecl
+        String recordTypeName = recordDecl.getName();
         if (symbolTable.containsKey(recordTypeName)){
             throw new DuplicateRecordTypeException("Duplicate record type name: " + recordTypeName);
         }
-        symbolTable.put(recordTypeName, new Type("RecordT"));
+        symbolTable.put(recordTypeName, new Type("Record"));
+        for (int i = 0; i < recordDecl.getFields().size(); i++) {
+            RecordEntry e = recordDecl.getFields().get(i);
+            // Check for duplicate field names
+            if (recordDecl.getFields().stream().filter(x -> x.getIdentifier().equals(e.getIdentifier())).count() > 1) {
+                throw new DuplicateFieldException("Duplicate field name in record " + recordTypeName + ": "
+                        + e.getIdentifier());
+            }
+            String fieldName = recordTypeName + "." + e.getIdentifier() + "." + i; // Stored as recordType.fieldName.index
+            symbolTable.put(fieldName, e.getType());
+        }
     }
 
     /**
@@ -58,10 +53,10 @@ public class SemanticAnalyzer implements ASTVisitor {
         for (Object obj : program.getContent()) {
             if (obj instanceof GeneralDecl) {
                 ((GeneralDecl) obj).accept(this);
+            } else if (obj instanceof RecordDecl) {
+                ((RecordDecl) obj).accept(this);
             } else if (obj instanceof Stmt) {
                 ((Stmt) obj).accept(this);
-            } else if (obj instanceof RecordT) {
-                ((RecordT) obj).accept(this);
             } else {
                 throw new RuntimeException("Unexpected object in program content : " + obj);
             }
@@ -85,9 +80,7 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((ConstDecl) generalDecl);
         } else if (generalDecl instanceof Assignment){
             visit((Assignment) generalDecl);
-        } /*else if (generalDecl instanceof RecordT){ // RecordT is a type not a declaration
-            visit((RecordT) generalDecl);
-        } */
+        }
     }
 
     /**
@@ -132,6 +125,31 @@ public class SemanticAnalyzer implements ASTVisitor {
         } else if (!declType.equals(valueType)){
             throw new SemanticException("Variable " + declName + " type does not match value type. Found " +
                     valueType + " expected " + declType + ".");
+        }
+        // Check if the variable is a record, if so, check the records fields
+        if (symbolTable.containsKey(declType)){
+            String recordType = declType;
+            RecordExpr recordExpr = (RecordExpr) decl.getValue();
+            // Sort the fields of the record by their identifier
+            ArrayList<RecordEntry> sortedRecord = recordExpr.getContent();
+            sortedRecord.sort(Comparator.comparing(RecordEntry::getIdentifier));
+
+            List<String> list = new ArrayList<>(symbolTable.keySet().stream().filter(x -> x.contains(recordType)).toList());
+            list.remove(recordType); // Remove the record type itself
+            for (int i = 0; i < list.size(); i++){
+                String field = list.get(i);
+                // Correct field type
+                declType = symbolTable.get(field).getName();
+                // Field index (recordType.fieldName.index)
+                int index = Integer.parseInt(field.substring(field.lastIndexOf(".") + 1));
+                // Value type
+                valueType = sortedRecord.get(index).getType().getName();
+                if (!declType.equals(valueType)) {
+                    throw new SemanticException("Field " + field.substring(0, field.lastIndexOf(".")) +
+                            " type does not match value type for '" + declName + "'. Found " + valueType + " expected "
+                            + declType + ".");
+                }
+            }
         }
         symbolTable.put(declName, decl.getType());
     }
