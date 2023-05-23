@@ -1,8 +1,7 @@
 package compiler.Parser;
-import compiler.Exceptions.SemanticException;
 
+import compiler.Exceptions.SemanticException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class RecordDecl implements ASTNode {
     protected final String name;
