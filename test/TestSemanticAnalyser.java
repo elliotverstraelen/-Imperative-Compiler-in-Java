@@ -137,12 +137,12 @@ public class TestSemanticAnalyser {
     }
 
     /**
-     * Test wrong type in a function call
+     * Test wrong type in a procedure call
      */
     @Test
-    public void testWrongTypeInFunctionCall() {
+    public void testWrongTypeInProcedureCall() {
         /* not implemented yet
-        String input = "func foo(x int) { var y int = x + 2; } foo(true);";
+        String input = "proc foo(x int) { var y int = x + 2; } foo(true);";
         StringReader reader = new StringReader(input);
         Lexer lexer = new Lexer(reader);
         Program program = new Parser(lexer).getProgram();
@@ -168,11 +168,10 @@ public class TestSemanticAnalyser {
     }
 
     /**
-     * Test corerct handling of type promotion
+     * Test correct handling of type promotion
      */
     @Test
     public void testTypePromotion() {
-        // TODO: fix semantic analyser for this test
         String input = "var x int = 2; var y real = 3.5; var z real = x + y;";
         StringReader reader = new StringReader(input);
         Lexer lexer = new Lexer(reader);
@@ -204,12 +203,11 @@ public class TestSemanticAnalyser {
     }
 
     /**
-     * Test improper function return type
+     * Test improper procedure return type
      */
     @Test
-    public void testImproperFunctionReturnType() {
-        // TODO: fix parser for this test
-        String input = "func foo() int { return true; }";
+    public void testImproperProcedureReturnType() {
+        String input = "proc foo() int { return true; }";
         StringReader reader = new StringReader(input);
         Lexer lexer = new Lexer(reader);
         Program program = new Parser(lexer).getProgram();
@@ -223,7 +221,7 @@ public class TestSemanticAnalyser {
      * Test undeclared function call
      */
     @Test
-    public void testUndeclaredFunctionCall() {
+    public void testUndeclaredProcedureCall() {
         /* not implemented yet
         String input = "func foo() int { return bar(); }";
         StringReader reader = new StringReader(input);

@@ -81,6 +81,8 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((ProcDecl) generalDecl);
         } else if (generalDecl instanceof ConstDecl){
             visit((ConstDecl) generalDecl);
+        } else if (generalDecl instanceof ArrayAssignment){
+            visit((ArrayAssignment) generalDecl);
         } else if (generalDecl instanceof Assignment){
             visit((Assignment) generalDecl);
         }
@@ -109,8 +111,8 @@ public class SemanticAnalyzer implements ASTVisitor {
         if (symbolTable.containsKey(declName)){
             throw new DuplicateVariableNameException("Duplicate " + declExpr + " name : " + declName);
         }
-        // Check if variable type is valid (except for arrays and binary expressions)
-        if (declType.equals("ArrayExpr") || declType.equals("BinaryExpr")) {
+        // Check if variable type is valid
+        if (declType.equals("BinaryExpr")) {
             // Check if variable type matches value type, if it is an identifier, check if the identifier type matches the variable type
             if (valueType.equals("IdentifierExpr")) {
                 String identifierType = symbolTable.get(decl.getValue().toString()).toString();
@@ -157,7 +159,12 @@ public class SemanticAnalyzer implements ASTVisitor {
                 }
             }
         }
-        symbolTable.put(declName, decl.getType());
+        // If the variable is an array declaration, add the size to the type string
+        if (decl.getValue() instanceof ArrayExpr declArray){
+            symbolTable.put(declName,  new Type(declType + declArray.getSize()));
+        } else {
+            symbolTable.put(declName, decl.getType());
+        }
     }
 
     /**
@@ -167,7 +174,7 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(ConstDecl constDecl) throws SemanticException {
-        visit(constDecl, "constant");
+        visit(constDecl, "const");
     }
 
     /**
@@ -178,7 +185,7 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(VarDecl varDecl) throws SemanticException {
-        visit(varDecl, "variable");
+        visit(varDecl, "var");
     }
 
     /**
@@ -188,7 +195,7 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(ValDecl valDecl) throws SemanticException {
-        visit(valDecl, "value");
+        visit(valDecl, "val");
     }
 
     /**
@@ -198,9 +205,45 @@ public class SemanticAnalyzer implements ASTVisitor {
      */
     @Override
     public void visit(ProcDecl procDecl) throws SemanticException {
+        // Check if procedure name is already in symbol table
         String procName = procDecl.getIdentifier();
         if (symbolTable.containsKey(procName)){
             throw new DuplicateProcedureNameException("Duplicate procedure name: " + procName);
+        }
+
+        // Check if procedure has a return type, if so, check if there is a return statement in the body
+        boolean containsReturn = false;
+        if (procDecl.getType() != null || procDecl.getType().getName().equals("void")) {
+            ReturnStmt returnStmt = new ReturnStmt(null);
+            for (Object stmt : procDecl.getBody().getStatements()) {
+                if (stmt instanceof ReturnStmt) {
+                    containsReturn = true;
+                    returnStmt = (ReturnStmt) stmt;
+                    break;
+                }
+            }
+            if (!containsReturn){
+                throw new ReturnTypeMismatchException("Procedure " + procName + " has a return type, but does not contain a return statement.");
+            } else {
+                // Check if return type matches the type of the return statement
+                String procType = procDecl.getType().getName();
+                String returnType = returnStmt.getValue().getType().getName();
+                if (!procType.equals(returnType)) {
+                    throw new ReturnTypeMismatchException("Procedure " + procName + " return type does not match return statement type. Found " +
+                            returnType + " expected " + procType + ".");
+                }
+            }
+        } else {
+            // If procedure has no return type, check if there is a return statement in the body
+            for (Object stmt : procDecl.getBody().getStatements()) {
+                if (stmt instanceof ReturnStmt) {
+                    containsReturn = true;
+                    break;
+                }
+            }
+            if (containsReturn){
+                throw new ReturnTypeMismatchException("Procedure " + procName + " has no return type, but contains a return statement.");
+            }
         }
         symbolTable.put(procName, procDecl.getType());
     }
@@ -271,6 +314,58 @@ public class SemanticAnalyzer implements ASTVisitor {
             }
         }
     }
+
+    public void visit(ArrayAssignment assignStmt) throws SemanticException {
+        // Perform semantic analysis for array assignment here.
+        // (e.g., checking for proper index types, bounds, etc.)
+        String identifier = assignStmt.getIdentifier();
+        if (!symbolTable.containsKey(identifier)){
+            throw new SemanticException("Variable " + identifier + " is not initialized.");
+        }
+        String varType = symbolTable.get(identifier).toString();
+        String size = varType.substring(varType.indexOf(":") + 1, varType.indexOf("}"));
+        Expr index = assignStmt.getIndex();
+        Expr assignValue = assignStmt.getValue();
+
+        // Ensure the index expression is an integer type
+        Type indexExprType = index.getType();
+        if (!indexExprType.getName().equals("int")) {
+            throw new SemanticException("Invalid array access: Index expression type should be int, found " + indexExprType);
+        }
+
+        String indexType = index.toString();
+        String indexValue = indexType.substring(indexType.indexOf(":") + 1, indexType.indexOf("}"));
+        // Ensure that the index is within the bounds of the array
+        if (Integer.parseInt(indexValue) > Integer.parseInt(size)) {
+            throw new SemanticException("Invalid array access: Index " + size + " out of bounds.");
+        }
+        
+        // Ensure that the type of the value being assigned matches the type of the array
+        if (assignValue instanceof BinaryExpr binary) {
+            String rightType = binary.getRight().getType().toString();
+            String leftType = binary.getLeft().getType().toString();
+            if (!varType.equals(rightType)) {
+                throw new SemanticException("Variable " + identifier + " type does not match value type. Found " +
+                        rightType + " expected " + varType + ".");
+            } else if (!varType.equals(leftType)) {
+                throw new SemanticException("Variable " + identifier + " type does not match value type. Found " +
+                        leftType + " expected " + varType + ".");
+            }
+        } else if (assignValue instanceof IdentifierExpr) {
+            String assignType = assignValue.getType().toString();
+            if (!varType.equals(assignType)) {
+                throw new SemanticException("Variable " + identifier + " type does not match value type. Found " +
+                        assignType + " expected " + varType + ".");
+            }
+        } else {
+            String assignType = assignValue.getType().toString();
+            if (!varType.equals(assignType)) {
+                throw new SemanticException("Variable " + identifier + " type does not match value type. Found " +
+                        assignType + " expected " + varType + ".");
+            }
+        }
+    }
+
     public void visit(ArrayAccess arrayAccess, Type arrayExprType) throws SemanticException {
         // Perform semantic analysis for array expressions here.
         // (e.g., checking for proper index types, bounds, etc.)
@@ -289,7 +384,6 @@ public class SemanticAnalyzer implements ASTVisitor {
         if (!indexExprType.getName().equals("int")) {
             throw new SemanticException("Invalid array access: Index expression type should be int, found " + indexExprType);
         }
-
     }
 
     public void visit(ReturnStmt returnStmt) throws SemanticException {
@@ -495,6 +589,17 @@ public class SemanticAnalyzer implements ASTVisitor {
         // Placeholder
     }
 
+    /**
+     * Perform semantic analysis for boolean expressions nodes
+     * @param booleanExpr: BooleanExpr node to visit
+     * @throws SemanticException
+     */
+    public void visit(BooleanExpr booleanExpr) throws  SemanticException {
+        // Check that the boolean expression is valid
+        if (!booleanExpr.getType().getName().equals("bool")) {
+            throw new SemanticException("Invalid boolean expression: Expected bool, found " + booleanExpr.getType().getName());
+        }
+    }
     /**
      * Perform semantic analysis for block nodes
      * @param block: Block node to visit

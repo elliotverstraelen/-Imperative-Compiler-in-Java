@@ -192,9 +192,20 @@ public class Parser {
             }
             // Note : if no declaration is found, the type is null
         }
-        match(SYMBOL_ASSIGN);
-        Expr value = parseExpr(null);
-        return new Assignment(type, identifier, value);
+        if (type != null && type.getName().contains("[]")) {
+            // Array assignment
+            match(SYMBOL_LEFT_BRACKET);
+            Expr index = parseExpr(null);
+            match(SYMBOL_RIGHT_BRACKET);
+            match(SYMBOL_ASSIGN);
+            Expr value = parseExpr(null);
+            return new ArrayAssignment(type, identifier, index, value);
+        } else {
+            // Simple assignment
+            match(SYMBOL_ASSIGN);
+            Expr value = parseExpr(null);
+            return new Assignment(type, identifier, value);
+        }
     }
 
     /**
