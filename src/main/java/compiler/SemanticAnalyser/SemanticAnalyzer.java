@@ -406,7 +406,7 @@ public class SemanticAnalyzer implements ASTVisitor {
             visit((RecordExpr) expr);
         } else if (expr instanceof StringExpr) {
             visit((StringExpr) expr);
-        } // Continue with other expression types as needed
+        }
     }
     public void visit(ArrayExpr arrayExpr) throws SemanticException {
         // Perform semantic analysis for array expressions here.
@@ -475,6 +475,10 @@ public class SemanticAnalyzer implements ASTVisitor {
         }
         // Get the type of the identifier from the symbol table
         identifierExpr.setType(symbolTable.get(identifier));
+    }
+
+    public void visit(RecordExpr recordExpr) throws  SemanticException {
+        // Placeholder
     }
 
     /**
