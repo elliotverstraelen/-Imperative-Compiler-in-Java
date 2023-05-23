@@ -128,6 +128,18 @@ public class Parser {
         match(name);
         String identifier = match(IDENTIFIER).getLexeme();
         Type type = parseType();
+        // If the next symbol is a semicolon, it is a declaration without assignment
+        if (lookahead.getToken() == SYMBOL_SEMICOLON) {
+            match(SYMBOL_SEMICOLON);
+            return switch (name) {
+                case KEYWORD_CONST -> new ConstDecl(type, identifier, null);
+                case KEYWORD_VAR -> new VarDecl(type, identifier, null);
+                case KEYWORD_VAL -> new ValDecl(type, identifier, null);
+                default -> throw new ParserException("Expected a declaration but got " + lookahead.getToken());
+            };
+        }
+
+        // Otherwise, it is a declaration with assignment
         match(SYMBOL_ASSIGN);
         Expr value;
         if (lookahead.getToken() == IDENTIFIER){
