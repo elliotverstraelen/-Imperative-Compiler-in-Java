@@ -1,16 +1,17 @@
 package compiler.Parser;
 
 import compiler.Exceptions.SemanticException;
+import compiler.Lexer.Lexer;
 
 import java.util.ArrayList;
 
-public class RecordDecl implements ASTNode {
+public class RecordDecl extends GeneralDecl{
     protected final String name;
     protected final ArrayList<RecordEntry> fields;
 
     public RecordDecl(String identifier, ArrayList<RecordEntry> fields) {
-        this.name = identifier;
-        this.fields = fields;
+        super();
+
     }
 
     public String getName() { return name; }

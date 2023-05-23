@@ -1,33 +1,36 @@
 package compiler.CodeGenerator;
-
-import compiler.Lexer.Lexer;
-import compiler.Parser.Param;
 import compiler.Parser.Program;
-import compiler.Parser.RecordEntry;
-import compiler.Parser.Stmt;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import java.lang.invoke.MethodType;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 public class CodeGenerator {
     private ClassWriter writer;
 
-    public static byte[] generateByteCode(Program program) {
-        // logic to generate code from a Program object
-        return new byte[0];
+    public CodeGenerator() {
+        this.writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
 
-    public static String generateCode(Program program) {
-        // logic to generate code from a Program object
-        return "";
+    public byte[] generateByteCode(ProgramCodeGenerator program) {
+        MethodVisitor mv = writer.visitMethod(
+                Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC,
+                "main",
+                "([Ljava/lang/String;)V",
+                null,
+                null
+        );
+        program.generateCode(this.writer, mv);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        writer.visitEnd();
+        return writer.toByteArray();
+    }
+
+    public String generateCode(ProgramCodeGenerator program) {
+        byte[] byteCode = this.generateByteCode(program);
+        // Convert the bytecode into a readable format for displaying
+        return Arrays.toString(byteCode); // Placeholder for now
     }
 }
-
-
-
-
