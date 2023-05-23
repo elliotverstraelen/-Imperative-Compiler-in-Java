@@ -1,11 +1,12 @@
 package compiler;
+import compiler.Exceptions.CodeGenerationException;
 import compiler.Lexer.Lexer;
 import compiler.Lexer.Symbol;
 import compiler.Parser.Parser;
 import compiler.Parser.Program;
 import compiler.SemanticAnalyser.SemanticAnalyzer;
 import compiler.Exceptions.SemanticException;
-
+import compiler.CodeGenerator.CodeGenerator;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -170,12 +171,52 @@ public class Compiler {
         }
         analyseProgram(parseInput(input));
     }
-    
 
-    public static void main(String[] args) throws Parser.ParserException {
+    public void generateCode() throws CodeGenerationException, Parser.ParserException {
+        System.out.println("Testing semantic Code Generator...");
+        // Basic example
+        System.out.println("--Basic examples--");
+        String input = "var x int = 2; var y int = ((3 + 4) * 5);";
+        System.out.println("Input: " + input);
+        Program program = parseInput(input);
+        CodeGenerator codeGen = new CodeGenerator();
+        String code = CodeGenerator.generateCode(program); // This version returns the bytecode as String and not Byte[].
+        System.out.println("Generated code:\n" + code);
+
+        // More examples
+        input = "var x int = 2; x = (3 + 4);";
+        System.out.println("Input: " + input);
+        program = parseInput(input);
+        code = CodeGenerator.generateCode(program);
+        System.out.println("Generated code:\n" + code);
+
+        input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
+        System.out.println("Input: " + input);
+        program = parseInput(input);
+        code = CodeGenerator.generateCode(program);
+        System.out.println("Generated code:\n" + code);
+
+        // Example using "code_example.lang" file
+        Path filename = Path.of("code_example.lang");
+        System.out.println("--Example using \"code_example.lang\" file--");
+        try {
+            input = Files.readString(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        program = parseInput(input);
+        code = CodeGenerator.generateCode(program);
+        System.out.println("Generated code:\n" + code);
+    }
+
+
+
+    public static void main(String[] args) throws Parser.ParserException, CodeGenerationException {
         Compiler compiler = new Compiler();
         compiler.lexer(args);
         compiler.parser();
         compiler.semanticAnalysis();
+        compiler.generateCode();
     }
 }

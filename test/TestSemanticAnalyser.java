@@ -90,6 +90,160 @@ public class TestSemanticAnalyser {
     }
 
     /**
+     * Test using an undeclared variable in an expression
+     */
+    @Test
+    public void testUsingUndeclaredVariableInExpression() {
+        String input = "var x int = 2; var y int = x + z;";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
+     * Test using an undeclared variable in a conditional statement
+     */
+    @Test
+    public void testUsingUndeclaredVariableInCondition() {
+        String input = "if (x < 10) { var y int = 5; }";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
+     * Test wrong type in a conditional statement
+     */
+    @Test
+    public void testWrongTypeInCondition() {
+        String input = "var x int = 2; if (x) { var y int = 5; }";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
+     * Test wrong type in a function call
+     */
+    @Test
+    public void testWrongTypeInFunctionCall() {
+        String input = "func foo(x int) { var y int = x + 2; } foo(true);";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
+     * Test using a variable before its declaration
+     */
+    @Test
+    public void testVariableUseBeforeDeclaration() {
+        String input = "x = 2; var x int = 3;";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
+     * Test corerct handling of type promotion
+     */
+    @Test
+    public void testTypePromotion() {
+        String input = "var x int = 2; var y real = 3.5; var z real = x + y;";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        try {
+            program.accept(semanticAnalyser);
+        } catch (SemanticException e) {
+            // Should not crash here
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    /**
+     * Test Array index out of bounds error
+     */
+    @Test
+    public void testArrayIndexOutOfBounds() {
+        String input = "var x int[] = int[](5); x[6] = 3;";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
+     * Test improper function return type
+     */
+    @Test
+    public void testImproperFunctionReturnType() {
+        String input = "func foo() int { return true; }";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
+     * Test undeclared function call
+     */
+    @Test
+    public void testUndeclaredFunctionCall() {
+        String input = "func foo() int { return bar(); }";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
+     * Test uninitialized variable
+     */
+    @Test
+    public void testUninitializedVariable() {
+        String input = "var x int; var y int = x;";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Program program = new Parser(lexer).getProgram();
+        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
+        assertThrows(SemanticException.class, () -> {
+            program.accept(semanticAnalyser);
+        });
+    }
+
+    /**
      * More advanced example
      */
     @Test
