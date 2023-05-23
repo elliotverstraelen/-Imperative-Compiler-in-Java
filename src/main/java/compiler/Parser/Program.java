@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Program {
     // Grammar : program -> procDecl* constDecl* recordDecl* globalDecl*
     private final ArrayList<ProcDecl> procDecls;
-    private final ArrayList<GeneralDecl> recordDecls;
+    private final ArrayList<RecordDecl> recordDecls;
     private final ArrayList<GeneralDecl> globalDecls;
     public Program(ArrayList<ProcDecl> procDeclDecls, ArrayList<RecordDecl> recordDecl, ArrayList<GeneralDecl> globalDecls) {
         this.procDecls = procDeclDecls;

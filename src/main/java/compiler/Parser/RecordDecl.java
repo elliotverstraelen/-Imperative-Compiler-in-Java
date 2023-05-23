@@ -10,8 +10,9 @@ public class RecordDecl extends GeneralDecl{
     protected final ArrayList<RecordEntry> fields;
 
     public RecordDecl(String identifier, ArrayList<RecordEntry> fields) {
-        super();
-
+        super(Lexer.Token.KEYWORD_RECORD, null, identifier, null);
+        this.name = identifier;
+        this.fields = fields;
     }
 
     public String getName() { return name; }
