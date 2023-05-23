@@ -27,6 +27,9 @@ dependencies {
 
     // This dependency is used by the application.
     implementation("com.google.guava:guava:31.1-jre")
+
+    // ASM library for generating bytecode.
+    implementation("org.ow2.asm:asm:9.1")
 }
 
 application {
