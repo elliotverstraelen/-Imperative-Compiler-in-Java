@@ -1,7 +1,9 @@
 package compiler.Parser;
 
 import compiler.Exceptions.SemanticException;
+
 import java.util.ArrayList;
+
 import static compiler.Lexer.Lexer.Token.KEYWORD_PROC;
 
 public class ProcDecl extends GeneralDecl {

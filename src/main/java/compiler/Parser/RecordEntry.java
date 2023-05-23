@@ -1,7 +1,5 @@
 package compiler.Parser;
 
-import compiler.Exceptions.SemanticException;
-
 public class RecordEntry extends Expr {
     protected final String identifier;
     protected final Type type;

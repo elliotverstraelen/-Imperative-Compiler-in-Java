@@ -1,7 +1,6 @@
 package compiler.Parser;
 
 import compiler.Exceptions.SemanticException;
-import compiler.Exceptions.TypeMismatchException;
 
 public interface ASTVisitor {
     void visit(Program program) throws SemanticException;

@@ -2,10 +2,6 @@ package compiler.Parser;
 
 import compiler.Lexer.Lexer;
 
-import java.util.ArrayList;
-
-import static compiler.Lexer.Lexer.Token.IDENTIFIER;
-
 public class AssignmentStmt extends Stmt {
     protected final String identifier;
     protected final Expr value;

@@ -1,8 +1,7 @@
 package compiler.Parser;
+
 import compiler.Exceptions.SemanticException;
 import compiler.Lexer.Lexer;
-
-import java.util.ArrayList;
 
 public class Stmt implements ASTNode{
     protected final Lexer.Token name;

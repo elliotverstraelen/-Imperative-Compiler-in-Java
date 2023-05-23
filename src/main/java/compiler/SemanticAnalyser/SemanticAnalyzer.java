@@ -3,7 +3,10 @@ package compiler.SemanticAnalyser;
 import compiler.Exceptions.*;
 import compiler.Parser.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 public class SemanticAnalyzer implements ASTVisitor {
 

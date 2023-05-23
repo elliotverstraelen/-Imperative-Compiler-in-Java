@@ -1,12 +1,14 @@
 package compiler;
+
+import compiler.CodeGenerator.CodeGenerator;
 import compiler.Exceptions.CodeGenerationException;
+import compiler.Exceptions.SemanticException;
 import compiler.Lexer.Lexer;
 import compiler.Lexer.Symbol;
 import compiler.Parser.Parser;
 import compiler.Parser.Program;
 import compiler.SemanticAnalyser.SemanticAnalyzer;
-import compiler.Exceptions.SemanticException;
-import compiler.CodeGenerator.CodeGenerator;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;

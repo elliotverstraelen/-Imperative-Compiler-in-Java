@@ -1,5 +1,7 @@
 package compiler.Parser;
-import compiler.Lexer.*;
+
+import compiler.Lexer.Lexer;
+import compiler.Lexer.Symbol;
 
 import java.util.ArrayList;
 import java.util.Arrays;

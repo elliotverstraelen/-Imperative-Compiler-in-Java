@@ -1,12 +1,7 @@
 package compiler.CodeGenerator;
-import compiler.Parser.*;
-import jdk.incubator.vector.VectorOperators;
-import org.objectweb.asm.*;
-import compiler.Exceptions.CodeGenerationException;
 
-import java.lang.invoke.MethodType;
-import java.util.Collections;
-import java.util.List;
+import compiler.Parser.Program;
+import org.objectweb.asm.ClassWriter;
 
 public class CodeGenerator {
     private ClassWriter writer;

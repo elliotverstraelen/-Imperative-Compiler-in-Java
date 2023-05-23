@@ -4,10 +4,6 @@ import jdk.incubator.vector.VectorOperators;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import java.lang.invoke.MethodType;
-import java.util.Collections;
-import java.util.List;
-
 import static jdk.incubator.vector.VectorOperators.*;
 
 // Binary Expression CodeGen

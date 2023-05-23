@@ -2,8 +2,6 @@ package compiler.Parser;
 
 import compiler.Exceptions.SemanticException;
 
-import java.util.ArrayList;
-
 public class RecordAccess extends Expr {
     protected final Expr identifier; // Identifier of the record (i.e. 'a', 'p[0]')
     protected final Expr field; // Field of the record (i.e. 'x', 'y')

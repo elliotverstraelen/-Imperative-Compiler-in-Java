@@ -1,8 +1,5 @@
 package compiler.Parser;
 
-import compiler.Exceptions.SemanticException;
-import java.util.ArrayList;
-
 public class ArrayAccessExpr extends Expr {
     protected final String identifier; // Identifier of the array (i.e. 'a')
     protected final Expr index; // Index of the array (i.e. '0')
