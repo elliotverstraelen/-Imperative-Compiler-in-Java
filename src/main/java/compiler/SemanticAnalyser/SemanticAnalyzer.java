@@ -95,6 +95,9 @@ public class SemanticAnalyzer implements ASTVisitor {
         if (declType.equals("BinaryExpr")){
             declType = visit((BinaryExpr) decl.getValue());
         }
+        if (decl.getValue() == null){
+            throw new UninitializedVariableException("Variable " + declName + " not initialized.");
+        }
         String valueType = decl.getValue().getType().getName();
         if (valueType.equals("BinaryExpr")){
             valueType = visit((BinaryExpr) decl.getValue());

@@ -181,7 +181,6 @@ public class Parser {
      * @return GeneralDecl - Assignment declaration object
      */
     private GeneralDecl parseAssignment() throws ParserException {
-        Lexer.Token name = IDENTIFIER;
         String identifier = match(IDENTIFIER).getLexeme();
         Type type = null;
         for (GeneralDecl decl : program.getGlobalDecls()) {
@@ -292,7 +291,6 @@ public class Parser {
                 return parseFor();
             }
             case IDENTIFIER -> {
-                match(IDENTIFIER);
                 return parseProcCall();
             }
             case KEYWORD_VAR, KEYWORD_VAL, KEYWORD_CONST -> {
@@ -369,16 +367,23 @@ public class Parser {
     }
 
     /**
-     * Parses a procedure call
+     * Parses a procedure call or assignment statement
      * Grammar: ProcCall -> identifier "(" Exprs ")"
      * @return Stmt - Procedure call object
      */
     private Stmt parseProcCall() throws ParserException {
         String identifier = lookahead.getLexeme();
         match(IDENTIFIER);
-        ArrayList<Expr> arguments = processBrackets(SYMBOL_LEFT_PARENTHESIS, SYMBOL_RIGHT_PARENTHESIS);
-        match(SYMBOL_SEMICOLON);
-        return new ProcCall(identifier, arguments);
+        if (lookahead.getToken() == SYMBOL_LEFT_PARENTHESIS) {
+            ArrayList<Expr> arguments = processBrackets(SYMBOL_LEFT_PARENTHESIS, SYMBOL_RIGHT_PARENTHESIS);
+            match(SYMBOL_SEMICOLON);
+            return new ProcCall(identifier, arguments);
+        } else {
+            match(SYMBOL_ASSIGN);
+            Expr expr = parseExpr(null);
+            match(SYMBOL_SEMICOLON);
+            return new AssignmentStmt(identifier, expr);
+        }
     }
 
     /**
