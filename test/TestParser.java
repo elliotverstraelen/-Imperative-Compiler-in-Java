@@ -67,11 +67,25 @@ public class TestParser {
     }
 
     /**
-     * Procedure declaration
+     * Procedure declaration with return
      */
     @Test
-    public void testProcedureDeclaration() {
-        String input = "proc main() void { var x int = 2; }";
+    public void testProcedureDeclarationWithReturn() {
+        String input = "proc example(int a) int { return a * 2; }";
+        StringReader reader = new StringReader(input);
+        Lexer lexer = new Lexer(reader);
+        Parser parser = new Parser(lexer);
+        Program program = parser.getProgram();
+        assertEquals(program.getContent().size(), 1);
+        assertEquals(program.getContent().get(0).getClass().getSimpleName(), "ProcDecl");
+    }
+
+    /**
+     * Procedure declaration without return
+     */
+    @Test
+    public void testProcedureDeclarationWithoutReturn() {
+        String input = "proc main(int a) void { var b int = a * 2; }";
         StringReader reader = new StringReader(input);
         Lexer lexer = new Lexer(reader);
         Parser parser = new Parser(lexer);

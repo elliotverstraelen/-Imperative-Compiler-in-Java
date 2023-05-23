@@ -251,7 +251,11 @@ public class Parser {
     private ArrayList<Object> parseStmts() throws ParserException {
         ArrayList<Object> statements = new ArrayList<>();
         while(lookahead.getToken() != SYMBOL_RIGHT_BRACE) {
-            statements.add(parseStmt());
+            if (lookahead.getToken() == SYMBOL_SEMICOLON) {
+                match(SYMBOL_SEMICOLON);
+            } else {
+                statements.add(parseStmt());
+            }
         }
         return statements;
     }
