@@ -15,4 +15,8 @@ public class Variable extends Expression {
         // Assuming all variables are global and stored as static fields
         visitor.visitFieldInsn(Opcodes.GETSTATIC, "MyClass", name, "I");
     }
+
+    public String getName() {
+        return this.name;
+    }
 }

@@ -1,7 +1,18 @@
 package compiler.CodeGenerator;
 
+import compiler.Lexer.Lexer;
+import compiler.Parser.Param;
 import compiler.Parser.Program;
+import compiler.Parser.RecordEntry;
+import compiler.Parser.Stmt;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+import java.lang.invoke.MethodType;
+import java.util.Collections;
+import java.util.List;
 
 public class CodeGenerator {
     private ClassWriter writer;
@@ -19,23 +30,4 @@ public class CodeGenerator {
 
 
 
-// Procedure Call CodeGen
-/*
-public class ProcCall {
-    private String identifier;
-    private List<Expression> args;
 
-    public ProcCall(String identifier, List<Expression> args) {
-        this.identifier = identifier;
-        this.args = args;
-    }
-
-    public void generateCode(MethodVisitor visitor) {
-        for (Expression arg : args) {
-            arg.generateCode(visitor);
-        }
-        visitor.visitMethodInsn(Opcodes.INVOKESTATIC, identifier,
-                MethodType.methodType(void.class, Collections.nCopies(args.size(), int.class)).toMethodDescriptorString(), true);
-
-    }
-}*/
