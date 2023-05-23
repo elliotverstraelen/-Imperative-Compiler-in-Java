@@ -1,6 +1,6 @@
 package compiler.Exceptions;
 
-public class UninitializedVariableException extends CompilerException {
+public class UninitializedVariableException extends SemanticException {
     public UninitializedVariableException(String message) {
         super(message);
     }

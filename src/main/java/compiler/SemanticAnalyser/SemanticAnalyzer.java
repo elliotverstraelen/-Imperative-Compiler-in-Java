@@ -95,6 +95,9 @@ public class SemanticAnalyzer implements ASTVisitor {
         if (declType.equals("BinaryExpr")){
             declType = visit((BinaryExpr) decl.getValue());
         }
+        if (decl.getValue() == null){
+            throw new UninitializedVariableException("Variable " + declName + " not initialized.");
+        }
         String valueType = decl.getValue().getType().getName();
         if (valueType.equals("BinaryExpr")){
             valueType = visit((BinaryExpr) decl.getValue());
@@ -462,6 +465,14 @@ public class SemanticAnalyzer implements ASTVisitor {
 
         // Check if the two types are the same
         if (!leftType.equals(rightType)) {
+            // If the types are not the same, check if they are both integers or reals
+            if (leftType.equals("int") && rightType.equals("real")) {
+                // If the left type is integer and the right type is real, the expression is valid
+                return "real";
+            } else if (leftType.equals("real") && rightType.equals("int")) {
+                // If the left type is real and the right type is integer, the expression is valid
+                return "real";
+            }
             throw new UndefinedIdentifierException("Type mismatch. Found " + leftType + " and " + rightType + ".");
         }
         return leftType;

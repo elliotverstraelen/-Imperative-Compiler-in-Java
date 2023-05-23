@@ -128,6 +128,18 @@ public class Parser {
         match(name);
         String identifier = match(IDENTIFIER).getLexeme();
         Type type = parseType();
+        // If the next symbol is a semicolon, it is a declaration without assignment
+        if (lookahead.getToken() == SYMBOL_SEMICOLON) {
+            match(SYMBOL_SEMICOLON);
+            return switch (name) {
+                case KEYWORD_CONST -> new ConstDecl(type, identifier, null);
+                case KEYWORD_VAR -> new VarDecl(type, identifier, null);
+                case KEYWORD_VAL -> new ValDecl(type, identifier, null);
+                default -> throw new ParserException("Expected a declaration but got " + lookahead.getToken());
+            };
+        }
+
+        // Otherwise, it is a declaration with assignment
         match(SYMBOL_ASSIGN);
         Expr value;
         if (lookahead.getToken() == IDENTIFIER){
@@ -169,7 +181,6 @@ public class Parser {
      * @return GeneralDecl - Assignment declaration object
      */
     private GeneralDecl parseAssignment() throws ParserException {
-        Lexer.Token name = IDENTIFIER;
         String identifier = match(IDENTIFIER).getLexeme();
         Type type = null;
         for (GeneralDecl decl : program.getGlobalDecls()) {
@@ -251,7 +262,11 @@ public class Parser {
     private ArrayList<Object> parseStmts() throws ParserException {
         ArrayList<Object> statements = new ArrayList<>();
         while(lookahead.getToken() != SYMBOL_RIGHT_BRACE) {
-            statements.add(parseStmt());
+            if (lookahead.getToken() == SYMBOL_SEMICOLON) {
+                match(SYMBOL_SEMICOLON);
+            } else {
+                statements.add(parseStmt());
+            }
         }
         return statements;
     }
@@ -276,7 +291,6 @@ public class Parser {
                 return parseFor();
             }
             case IDENTIFIER -> {
-                match(IDENTIFIER);
                 return parseProcCall();
             }
             case KEYWORD_VAR, KEYWORD_VAL, KEYWORD_CONST -> {
@@ -353,16 +367,23 @@ public class Parser {
     }
 
     /**
-     * Parses a procedure call
+     * Parses a procedure call or assignment statement
      * Grammar: ProcCall -> identifier "(" Exprs ")"
      * @return Stmt - Procedure call object
      */
     private Stmt parseProcCall() throws ParserException {
         String identifier = lookahead.getLexeme();
         match(IDENTIFIER);
-        ArrayList<Expr> arguments = processBrackets(SYMBOL_LEFT_PARENTHESIS, SYMBOL_RIGHT_PARENTHESIS);
-        match(SYMBOL_SEMICOLON);
-        return new ProcCall(identifier, arguments);
+        if (lookahead.getToken() == SYMBOL_LEFT_PARENTHESIS) {
+            ArrayList<Expr> arguments = processBrackets(SYMBOL_LEFT_PARENTHESIS, SYMBOL_RIGHT_PARENTHESIS);
+            match(SYMBOL_SEMICOLON);
+            return new ProcCall(identifier, arguments);
+        } else {
+            match(SYMBOL_ASSIGN);
+            Expr expr = parseExpr(null);
+            match(SYMBOL_SEMICOLON);
+            return new AssignmentStmt(identifier, expr);
+        }
     }
 
     /**

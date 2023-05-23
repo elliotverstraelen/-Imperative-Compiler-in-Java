@@ -95,7 +95,7 @@ public class Compiler {
 
         // More advanced example of how to use the lexer
         System.out.println("--More advanced example--");
-        input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
+        input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;\nx = 2 + 3;";
         System.out.println("Input: " + input);
         reader = new StringReader(input); // Create a reader for the input
         lexer = new Lexer(reader); // Create a lexer for the reader
