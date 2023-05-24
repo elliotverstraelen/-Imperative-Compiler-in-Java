@@ -7,6 +7,7 @@ public class RecordAccessCodeGenerator extends ExpressionCodeGenerator {
     private final String name;
 
     public RecordAccessCodeGenerator(String name) {
+        super("RecordAccess");
         this.name = name;
     }
 

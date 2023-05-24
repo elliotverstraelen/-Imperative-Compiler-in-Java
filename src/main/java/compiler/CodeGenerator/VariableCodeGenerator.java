@@ -7,6 +7,7 @@ public class VariableCodeGenerator extends ExpressionCodeGenerator {
     private final String name;
 
     public VariableCodeGenerator(String name) {
+        super("VariableExpr");
         this.name = name;
     }
 

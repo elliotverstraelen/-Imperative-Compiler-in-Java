@@ -1,5 +1,6 @@
 package compiler.CodeGenerator;
 
+import compiler.Lexer.Lexer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -7,30 +8,22 @@ import org.objectweb.asm.Opcodes;
 import java.util.List;
 
 public class ForCodeGenerator extends CtrlStructCodeGenerator {
-    private StmtCodeGenerator initialization;
-    private ExpressionCodeGenerator condition;
-    private StmtCodeGenerator increment;
-    private List<StmtCodeGenerator> body;
+    private ExpressionCodeGenerator step;
 
-    public ForCodeGenerator(StmtCodeGenerator initialization, ExpressionCodeGenerator condition, StmtCodeGenerator increment, List<StmtCodeGenerator> body) {
-        this.initialization = initialization;
-        this.condition = condition;
-        this.increment = increment;
-        this.body = body;
+    public ForCodeGenerator(Lexer.Token name, ExpressionCodeGenerator condition, BlockCodeGenerator body, ExpressionCodeGenerator step) {
+        super(Lexer.Token.KEYWORD_FOR, condition, body);
+        this.step = step;
     }
 
     @Override
     public void generateCode(MethodVisitor visitor) {
-        initialization.generateCode(visitor);
         Label loopStart = new Label();
         visitor.visitLabel(loopStart);
         condition.generateCode(visitor);
         Label loopEnd = new Label();
         visitor.visitJumpInsn(Opcodes.IFEQ, loopEnd);
-        for (StmtCodeGenerator stmt : body) {
-            stmt.generateCode(visitor);
-        }
-        increment.generateCode(visitor);
+        this.thenBody.generateCode(visitor);
+        step.generateCode(visitor);
         visitor.visitJumpInsn(Opcodes.GOTO, loopStart);
         visitor.visitLabel(loopEnd);
     }

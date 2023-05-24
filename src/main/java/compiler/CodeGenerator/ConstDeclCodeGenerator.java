@@ -5,7 +5,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class ConstDeclCodeGenerator extends Declaration {
+public class ConstDeclCodeGenerator extends DeclarationCodeGenerator {
     private final String identifier;
     private final int value;
 

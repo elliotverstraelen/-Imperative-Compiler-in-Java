@@ -20,17 +20,20 @@ public class ProgramCodeGenerator {
      * Here, we use a polymorphic list and make good use of java's polymorphism and inheritance properties
      */
     public void generateCode(ClassWriter writer, MethodVisitor mv) {
-        for (GeneralDeclCodeGenerator declaration : this.program.getContent()) {
+        for (GeneralDecl declaration : this.program.getContent()) {
             if (declaration instanceof RecordDecl recordDecl) {
                 // Generate code for record declaration
-                recordDecl.generateCode(writer, mv);
+                declarations.add(new RecordDeclCodeGenerator(recordDecl.getName(), recordDecl.getFields()));
             } else if (declaration instanceof ProcDecl procDecl) {
                 // Generate code for procedure declaration
-                procDecl.generateCode(writer, mv);
+                declarations.add(new ProcDeclCodeGenerator(procDecl.getIdentifier(), procDecl.getParams(), procDecl.getBody()));
             } else {
                 // Generate code for other declarations
-                declaration.generateCode(writer, mv);
+                declarations.add(new GeneralDeclCodeGenerator(declaration.getIdentifier(), ExpressionCodeGenerator.castExpr(declaration.getValue()), declaration.getType().getName()));
             }
+        }
+        for (GeneralDeclCodeGenerator declaration : declarations) {
+            declaration.generateCode(writer, mv);
         }
     }
 }

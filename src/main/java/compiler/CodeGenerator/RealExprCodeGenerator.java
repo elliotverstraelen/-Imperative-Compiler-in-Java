@@ -6,6 +6,7 @@ public class RealExprCodeGenerator extends ExpressionCodeGenerator {
     private final float value;
 
     public RealExprCodeGenerator(float value) {
+        super("RealExpr");
         this.value = value;
     }
 

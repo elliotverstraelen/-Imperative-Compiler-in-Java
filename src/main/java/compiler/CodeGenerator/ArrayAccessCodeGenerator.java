@@ -3,11 +3,12 @@ package compiler.CodeGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class ArrayAccessCodeGenerator extends Expression {
-    private Expression arrayRef;
-    private Expression index;
+public class ArrayAccessCodeGenerator extends ExpressionCodeGenerator {
+    private final ExpressionCodeGenerator arrayRef;
+    private final ExpressionCodeGenerator index;
 
-    public ArrayAccessCodeGenerator(Expression arrayRef, Expression index) {
+    public ArrayAccessCodeGenerator(ExpressionCodeGenerator arrayRef, ExpressionCodeGenerator index) {
+        super("ArrayAccessExpr");
         this.arrayRef = arrayRef;
         this.index = index;
     }

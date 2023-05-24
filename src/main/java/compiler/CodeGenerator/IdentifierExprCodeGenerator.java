@@ -7,6 +7,7 @@ public class IdentifierExprCodeGenerator extends ExpressionCodeGenerator {
     private final String identifier;
 
     public IdentifierExprCodeGenerator(String identifier) {
+        super("IdentifierExpr");
         this.identifier = identifier;
     }
 

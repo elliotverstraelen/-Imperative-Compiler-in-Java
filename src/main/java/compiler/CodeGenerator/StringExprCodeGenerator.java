@@ -6,6 +6,7 @@ public class StringExprCodeGenerator extends ExpressionCodeGenerator {
     private final String value;
 
     public StringExprCodeGenerator(String value) {
+        super("StringExpr");
         this.value = value;
     }
 

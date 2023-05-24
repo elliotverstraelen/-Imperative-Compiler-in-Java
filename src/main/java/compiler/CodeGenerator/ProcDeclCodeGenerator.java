@@ -1,23 +1,46 @@
 package compiler.CodeGenerator;
 
-import compiler.Parser.Param;
+import compiler.Parser.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
 import java.lang.invoke.MethodType;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
-public class ProcDeclCodeGenerator extends DeclarationCodeGenerator {
+import static compiler.CodeGenerator.ExpressionCodeGenerator.castExpr;
+
+public class ProcDeclCodeGenerator extends GeneralDeclCodeGenerator {
     private String name;
-    private List<Param> params;
-    private List<StmtCodeGenerator> body;
+    private ArrayList<Param> params;
+    private ArrayList<StmtCodeGenerator> body;
 
-    public ProcDeclCodeGenerator(String name, List<Param> params, List<StmtCodeGenerator> body) {
-        this.name = name;
+    public ProcDeclCodeGenerator(String name, ArrayList<Param> params, ArrayList<StmtCodeGenerator> body) {
+        super(name, null, "proc");
         this.params = params;
         this.body = body;
+    }
+
+    public ProcDeclCodeGenerator(String name, ArrayList<Param> params, Block body) {
+        super(name, null, "proc");
+        this.name = name;
+        this.params = params;
+        this.body = new ArrayList<>();
+        for (Object stmt : body.getStatements()) {
+            if (stmt instanceof ArrayAccess arrayAccess) {
+                this.body.add(new ArrayStmtCodeGenerator(arrayAccess.getIdentifier(), castExpr(arrayAccess.getIndex())));
+            } else if (stmt instanceof AssignmentStmt assignmentStmt) {
+                this.body.add(new AssignmentCodeGenerator(new IdentifierExprCodeGenerator(assignmentStmt.getIdentifier()), castExpr(assignmentStmt.getValue())));
+            } else if (stmt instanceof For forStmt) {
+                //TODO
+            } else if (stmt instanceof CtrlStruct ctrlStruct) {
+                //TODO
+            }else if (stmt instanceof ProcCall procCall) {
+                //TODO
+            }else if (stmt instanceof ReturnStmt returnStmt) {
+                //TODO
+            }
+        }
     }
 
     public void generateCode(ClassWriter writer) {
