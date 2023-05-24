@@ -10,6 +10,8 @@ import compiler.Parser.Parser;
 import compiler.Parser.Program;
 import compiler.SemanticAnalyser.SemanticAnalyzer;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -174,6 +176,18 @@ public class Compiler {
         }
         analyseProgram(parseInput(input));
     }
+    public void writeClassFile(String className, byte[] bytecode) throws CodeGenerationException {
+        try {
+            FileOutputStream output = new FileOutputStream(new File(className + ".class"));
+            output.write(bytecode);
+            output.close();
+            System.out.println("Generated code saved to "+className+".class");
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new CodeGenerationException("Failed to write .class file.");
+        }
+    }
+
 
     public void generateCode() throws CodeGenerationException, Parser.ParserException {
         System.out.println("Testing semantic Code Generator...");
@@ -185,19 +199,25 @@ public class Compiler {
         CodeGenerator codeGen = new CodeGenerator();
         String code = codeGen.generateCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as String and not Byte[].
         System.out.println("Generated code:\n" + code);
+        byte[] bytecode = codeGen.generateByteCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as bytecode to create the class files
+        writeClassFile("Example_1", bytecode);
 
         // More examples
         input = "var x int = 2; x = (3 + 4);";
         System.out.println("Input: " + input);
         program = parseInput(input);
-        code = codeGen.generateCode(new ProgramCodeGenerator(program));
+        code = codeGen.generateCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as String and not Byte[].
         System.out.println("Generated code:\n" + code);
+        bytecode = codeGen.generateByteCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as bytecode to create the class files
+        writeClassFile("Example_2", bytecode);
 
         input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
         System.out.println("Input: " + input);
         program = parseInput(input);
-        code = codeGen.generateCode(new ProgramCodeGenerator(program));
+        code = codeGen.generateCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as String and not Byte[].
         System.out.println("Generated code:\n" + code);
+        bytecode = codeGen.generateByteCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as bytecode to create the class files
+        writeClassFile("Example_3", bytecode);
 
         // Example using "code_example.lang" file
         Path filename = Path.of("code_example.lang");
@@ -211,6 +231,9 @@ public class Compiler {
         program = parseInput(input);
         code = codeGen.generateCode(new ProgramCodeGenerator(program));
         System.out.println("Generated code:\n" + code);
+        bytecode = codeGen.generateByteCode(new ProgramCodeGenerator(program));
+        writeClassFile("code_example", bytecode);
+
     }
 
 
