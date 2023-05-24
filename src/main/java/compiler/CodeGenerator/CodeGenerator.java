@@ -37,6 +37,6 @@ public class CodeGenerator {
     public String generateCode(ProgramCodeGenerator program) {
         byte[] byteCode = this.generateByteCode(program);
         // Convert the bytecode into a readable format for displaying
-        return Arrays.toString(byteCode); // Placeholder for now
+        return Arrays.toString(byteCode);
     }
 }

@@ -11,6 +11,5 @@ public class ParamCodeGenerator {
 
     public void generateCode(MethodVisitor mv) {
         // In the context of JVM, parameters are loaded onto the stack in the method body.
-        // Code generation for parameters might not be applicable or it should be done inside the method body.
     }
 }

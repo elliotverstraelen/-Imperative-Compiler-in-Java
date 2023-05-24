@@ -3,7 +3,6 @@ package compiler.CodeGenerator;
 import compiler.Parser.*;
 import org.objectweb.asm.MethodVisitor;
 
-// ... repeat for other classes like BinaryExprCodeGenerator, BlockCodeGenerator, etc.
 public abstract class ExpressionCodeGenerator {
     protected final String name;
 

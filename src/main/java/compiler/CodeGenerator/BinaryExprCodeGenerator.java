@@ -47,7 +47,6 @@ public class BinaryExprCodeGenerator extends ExpressionCodeGenerator {
             visitor.visitInsn(Opcodes.IMUL);
         } else if (operator.equals(DIV)) {
             visitor.visitInsn(Opcodes.IDIV);
-            // other operands
         }
     }
 

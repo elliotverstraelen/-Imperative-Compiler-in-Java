@@ -33,6 +33,6 @@ public class ArrayExprCodeGenerator extends ExpressionCodeGenerator {
     public void generateCode(MethodVisitor visitor) {
         size.generateCode(visitor);
         visitor.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
-        // T_INT indicates that the elements of the array are of type int. We might need another code to do floats
+        // T_INT indicates that the elements of the array are of type int.
     }
 }

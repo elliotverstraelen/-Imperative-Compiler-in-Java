@@ -15,20 +15,16 @@ public class TypeCodeGenerator {
         switch (typeName) {
             case "int":
                 return "I";
+            case "real":
+                return "F";
             case "boolean":
                 return "Z";
-            case "char":
-                return "C";
-            case "byte":
-                return "B";
-            case "short":
+            case "string":
                 return "S";
-            case "long":
-                return "J";
-            case "float":
-                return "F";
-            case "double":
-                return "D";
+            case "record":
+                return "R";
+            case "proc":
+                return "P";
             case "void":
                 return "V";
             default:

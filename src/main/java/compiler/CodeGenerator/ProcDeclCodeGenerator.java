@@ -32,13 +32,13 @@ public class ProcDeclCodeGenerator extends GeneralDeclCodeGenerator {
             } else if (stmt instanceof AssignmentStmt assignmentStmt) {
                 this.body.add(new AssignmentCodeGenerator(new IdentifierExprCodeGenerator(assignmentStmt.getIdentifier()), castExpr(assignmentStmt.getValue())));
             } else if (stmt instanceof For forStmt) {
-                //TODO
+                //
             } else if (stmt instanceof CtrlStruct ctrlStruct) {
-                //TODO
+                //
             }else if (stmt instanceof ProcCall procCall) {
-                //TODO
+                //
             }else if (stmt instanceof ReturnStmt returnStmt) {
-                //TODO
+                //
             }
         }
     }
