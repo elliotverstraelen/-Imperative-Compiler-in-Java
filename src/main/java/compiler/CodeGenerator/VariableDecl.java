@@ -4,23 +4,48 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import java.util.List;
-
-public class VariableDecl extends Declaration {
+public class VariableDeclCodeGenerator extends DeclarationCodeGenerator {
     private String name;
-    private Expression initExpr;
+    private ExpressionCodeGenerator initExpr;
+    private String typeDescriptor;
+    private String className;
 
-    public VariableDecl(String name, Expression initExpr) {
+    public VariableDeclCodeGenerator(String name, ExpressionCodeGenerator initExpr, String type) {
         this.name = name;
         this.initExpr = initExpr;
+        this.typeDescriptor = getTypeDescriptor(type);
+    }
+
+    /**
+     * This is used to handle the difference between ints and floats
+     */
+    private String getTypeDescriptor(String type) {
+        switch (type) {
+            case "int":
+                return "I";
+            case "float":
+                return "F";
+            // add more cases for other types as needed
+            default:
+                throw new IllegalArgumentException("Unsupported type: " + type);
+        }
+    }
+
+    @Override
+    public void generateCode(ClassWriter writer, MethodVisitor mv, String className) {
+        this.className = className;
+        generateCode(writer, mv);
     }
 
     @Override
     public void generateCode(ClassWriter writer, MethodVisitor mv) {
-        mv.visitFieldInsn(Opcodes.ACC_PUBLIC, name, "I", null);
+        if(className == null) {
+            throw new IllegalStateException("Class name not set.");
+        }
+        writer.visitField(Opcodes.ACC_PUBLIC, name, typeDescriptor, null, null);
         if (initExpr != null) {
             initExpr.generateCode(mv);
-            mv.visitFieldInsn(Opcodes.PUTSTATIC, String.valueOf(writer.getClass()), name, "I");
+            mv.visitFieldInsn(Opcodes.PUTSTATIC, className.replace('.', '/'), name, typeDescriptor);
         }
     }
 }

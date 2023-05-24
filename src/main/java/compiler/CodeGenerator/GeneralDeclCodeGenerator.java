@@ -5,16 +5,16 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.util.List;
 
-public class GeneralDecl extends Declaration {
-    private List<Declaration> declarations;
+public class GeneralDeclCodeGenerator extends DeclarationCodeGenerator {
+    private List<DeclarationCodeGenerator> declarations;
 
-    public GeneralDecl(List<Declaration> declarations) {
+    public GeneralDeclCodeGenerator(List<DeclarationCodeGenerator> declarations) {
         this.declarations = declarations;
     }
 
     @Override
     public void generateCode(ClassWriter writer, MethodVisitor mv) {
-        for (Declaration decl : declarations) {
+        for (DeclarationCodeGenerator decl : declarations) {
             decl.generateCode(writer, mv);
         }
     }

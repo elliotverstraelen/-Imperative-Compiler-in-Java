@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class ProgramCodeGenerator {
     private final Program program;
-    private final ArrayList<GeneralDecl> declarations = new ArrayList<>();;
+    private final ArrayList<GeneralDeclCodeGenerator> declarations = new ArrayList<>();;
 
     public ProgramCodeGenerator(Program program) {
         this.program = program;
@@ -20,16 +20,16 @@ public class ProgramCodeGenerator {
      * Here, we use a polymorphic list and make good use of java's polymorphism and inheritance properties
      */
     public void generateCode(ClassWriter writer, MethodVisitor mv) {
-        for (GeneralDecl declaration : this.program.getContent()) {
+        for (GeneralDeclCodeGenerator declaration : this.program.getContent()) {
             if (declaration instanceof RecordDecl recordDecl) {
                 // Generate code for record declaration
-                //recordDecl.generateCode(writer, mv);
+                recordDecl.generateCode(writer, mv);
             } else if (declaration instanceof ProcDecl procDecl) {
                 // Generate code for procedure declaration
-                //procDecl.generateCode(writer, mv);
+                procDecl.generateCode(writer, mv);
             } else {
                 // Generate code for other declarations
-                //declaration.generateCode(writer, mv);
+                declaration.generateCode(writer, mv);
             }
         }
     }

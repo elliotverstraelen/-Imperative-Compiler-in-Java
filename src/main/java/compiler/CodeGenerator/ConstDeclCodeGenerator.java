@@ -5,11 +5,11 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class ConstDecl extends Declaration {
+public class ConstDeclCodeGenerator extends Declaration {
     private final String identifier;
     private final int value;
 
-    public ConstDecl(String identifier, int value) {
+    public ConstDeclCodeGenerator(String identifier, int value) {
         this.identifier = identifier;
         this.value = value;
     }

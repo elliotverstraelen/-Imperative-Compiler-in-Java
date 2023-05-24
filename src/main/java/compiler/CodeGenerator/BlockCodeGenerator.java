@@ -4,10 +4,10 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.util.List;
 
-public class Block extends StmtCodeGenerator {
+public class BlockCodeGenerator extends StmtCodeGenerator {
     private final List<StmtCodeGenerator> stmts;
 
-    public Block(List<StmtCodeGenerator> stmts) {
+    public BlockCodeGenerator(List<StmtCodeGenerator> stmts) {
         this.stmts = stmts;
     }
 

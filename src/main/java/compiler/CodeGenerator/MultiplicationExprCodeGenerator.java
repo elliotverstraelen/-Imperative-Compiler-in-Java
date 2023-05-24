@@ -3,10 +3,10 @@ package compiler.CodeGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class MultiplicationExpr extends Expression {
-    private final Expression left, right;
+public class MultiplicationExprCodeGenerator extends ExpressionCodeGenerator {
+    private final ExpressionCodeGenerator left, right;
 
-    public MultiplicationExpr(Expression left, Expression right) {
+    public MultiplicationExprCodeGenerator(ExpressionCodeGenerator left, ExpressionCodeGenerator right) {
         this.left = left;
         this.right = right;
     }

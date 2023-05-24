@@ -6,11 +6,11 @@ import org.objectweb.asm.Opcodes;
 
 import java.util.List;
 
-public class RecordDecl extends Declaration {
+public class RecordDeclCodeGenerator extends DeclarationCodeGenerator {
     private String name;
     private List<RecordEntryCodeGenerator> entries;
 
-    public RecordDecl(String name, List<RecordEntryCodeGenerator> entries) {
+    public RecordDeclCodeGenerator(String name, List<RecordEntryCodeGenerator> entries) {
         this.name = name;
         this.entries = entries;
     }

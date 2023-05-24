@@ -194,32 +194,38 @@ public class Compiler {
         // Basic example
         System.out.println("--Basic examples--");
         String input = "var x int = 2; var y int = ((3 + 4) * 5);";
+        String className = "Example_1";
         System.out.println("Input: " + input);
         Program program = parseInput(input);
-        CodeGenerator codeGen = new CodeGenerator();
+        CodeGenerator codeGen = new CodeGenerator(className, null); // Replace null with superclass name, if needed
         String code = codeGen.generateCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as String and not Byte[].
-        System.out.println("Generated code:\n" + code);
+        System.out.println("Generated code for class: "+ className + "\n" + code);
         byte[] bytecode = codeGen.generateByteCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as bytecode to create the class files
-        writeClassFile("Example_1", bytecode);
+        writeClassFile(className, bytecode);
 
         // More examples
         input = "var x int = 2; x = (3 + 4);";
+        className = "Example_2";
         System.out.println("Input: " + input);
         program = parseInput(input);
+        codeGen = new CodeGenerator(className, null);
         code = codeGen.generateCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as String and not Byte[].
-        System.out.println("Generated code:\n" + code);
+        System.out.println("Generated code for class: "+ className + "\n" + code);
         bytecode = codeGen.generateByteCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as bytecode to create the class files
-        writeClassFile("Example_2", bytecode);
+        writeClassFile(className, bytecode);
 
         input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
+        className = "Example_3";
         System.out.println("Input: " + input);
         program = parseInput(input);
+        codeGen = new CodeGenerator(className, null); // Replace null with superclass name, if needed
         code = codeGen.generateCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as String and not Byte[].
-        System.out.println("Generated code:\n" + code);
+        System.out.println("Generated code for class: "+ className + "\n" + code);
         bytecode = codeGen.generateByteCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as bytecode to create the class files
-        writeClassFile("Example_3", bytecode);
+        writeClassFile(className, bytecode);
 
         // Example using "code_example.lang" file
+        className = "code_example";
         Path filename = Path.of("code_example.lang");
         System.out.println("--Example using \"code_example.lang\" file--");
         try {
@@ -229,11 +235,11 @@ public class Compiler {
             throw new RuntimeException(e);
         }
         program = parseInput(input);
+        codeGen = new CodeGenerator(className, null); // Replace null with superclass name, if needed
         code = codeGen.generateCode(new ProgramCodeGenerator(program));
         System.out.println("Generated code:\n" + code);
         bytecode = codeGen.generateByteCode(new ProgramCodeGenerator(program));
-        writeClassFile("code_example", bytecode);
-
+        writeClassFile(className, bytecode);
     }
 
 

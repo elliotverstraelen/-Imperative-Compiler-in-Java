@@ -3,10 +3,10 @@ package compiler.CodeGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class ReturnStmt extends StmtCodeGenerator {
-    private Expression expr;
+public class ReturnStmtCodeGenerator extends StmtCodeGenerator {
+    private ExpressionCodeGenerator expr;
 
-    public ReturnStmt(Expression expr) {
+    public ReturnStmtCodeGenerator(ExpressionCodeGenerator expr) {
         this.expr = expr;
     }
 

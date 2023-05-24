@@ -3,10 +3,10 @@ package compiler.CodeGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class IntegerExpr extends Expression {
+public class IntegerExprCodeGenerator extends ExpressionCodeGenerator {
     private final int value;
 
-    public IntegerExpr(int value) {
+    public IntegerExprCodeGenerator(int value) {
         this.value = value;
     }
 

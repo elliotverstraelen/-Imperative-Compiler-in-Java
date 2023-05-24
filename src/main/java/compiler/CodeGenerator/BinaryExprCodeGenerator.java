@@ -7,11 +7,11 @@ import org.objectweb.asm.Opcodes;
 import static jdk.incubator.vector.VectorOperators.*;
 
 // Binary Expression CodeGen
-public class BinaryExpr extends Expression {
+public class BinaryExprCodeGenerator extends Expression {
     private Expression left, right;
     private VectorOperators.Operator operator;
 
-    public BinaryExpr(Expression left, Expression right, VectorOperators.Operator operator) {
+    public BinaryExprCodeGenerator(Expression left, Expression right, VectorOperators.Operator operator) {
         this.left = left;
         this.right = right;
         this.operator = operator;
@@ -30,7 +30,7 @@ public class BinaryExpr extends Expression {
             visitor.visitInsn(Opcodes.IMUL);
         } else if (operator.equals(DIV)) {
             visitor.visitInsn(Opcodes.IDIV);
-            // add cases for other operators as needed
+            // other operands
         }
     }
 

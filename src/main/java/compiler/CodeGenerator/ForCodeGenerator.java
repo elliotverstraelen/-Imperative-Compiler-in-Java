@@ -6,13 +6,13 @@ import org.objectweb.asm.Opcodes;
 
 import java.util.List;
 
-public class For extends CtrlStruct {
+public class ForCodeGenerator extends CtrlStructCodeGenerator {
     private StmtCodeGenerator initialization;
-    private Expression condition;
+    private ExpressionCodeGenerator condition;
     private StmtCodeGenerator increment;
     private List<StmtCodeGenerator> body;
 
-    public For(StmtCodeGenerator initialization, Expression condition, StmtCodeGenerator increment, List<StmtCodeGenerator> body) {
+    public ForCodeGenerator(StmtCodeGenerator initialization, ExpressionCodeGenerator condition, StmtCodeGenerator increment, List<StmtCodeGenerator> body) {
         this.initialization = initialization;
         this.condition = condition;
         this.increment = increment;

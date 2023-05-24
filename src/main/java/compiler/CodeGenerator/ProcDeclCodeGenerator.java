@@ -9,12 +9,12 @@ import java.lang.invoke.MethodType;
 import java.util.Collections;
 import java.util.List;
 
-public class ProcDecl extends Declaration {
+public class ProcDeclCodeGenerator extends DeclarationCodeGenerator {
     private String name;
     private List<Param> params;
     private List<StmtCodeGenerator> body;
 
-    public ProcDecl(String name, List<Param> params, List<StmtCodeGenerator> body) {
+    public ProcDeclCodeGenerator(String name, List<Param> params, List<StmtCodeGenerator> body) {
         this.name = name;
         this.params = params;
         this.body = body;
