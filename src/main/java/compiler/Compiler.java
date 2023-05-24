@@ -193,7 +193,7 @@ public class Compiler {
         System.out.println("Testing semantic Code Generator...");
         // Basic example
         System.out.println("--Basic examples--");
-        String input = "var x int = 2; var y int = ((3 + 4) * 5);";
+        String input = "var x int = 2; var y int = ((3 + 4) * 5); var z real = x + 2.0;";
         String className = "Example_1";
         System.out.println("Input: " + input);
         Program program = parseInput(input);
