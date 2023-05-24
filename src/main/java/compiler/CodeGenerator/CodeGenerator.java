@@ -8,20 +8,21 @@ import java.util.Arrays;
 
 public class CodeGenerator {
     private ClassWriter writer;
+    private MethodVisitor mv;
 
     public CodeGenerator() {
         this.writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-    }
-
-    public byte[] generateByteCode(ProgramCodeGenerator program) {
-        MethodVisitor mv = writer.visitMethod(
+        this.mv = writer.visitMethod(
                 Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC,
                 "main",
                 "([Ljava/lang/String;)V",
                 null,
                 null
         );
-        program.generateCode(this.writer, mv);
+    }
+
+    public byte[] generateByteCode(ProgramCodeGenerator program) {
+        program.generateCode(this.writer, this.mv);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
         writer.visitEnd();

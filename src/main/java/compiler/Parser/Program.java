@@ -14,8 +14,8 @@ public class Program {
         this.recordDecls = recordDecl;
         this.globalDecls = globalDecls;
     }
-    public ArrayList<Object> getContent() {
-        ArrayList<Object> content = new ArrayList<>();
+    public ArrayList<GeneralDecl> getContent() {
+        ArrayList<GeneralDecl> content = new ArrayList<>();
         content.addAll(procDecls);
         content.addAll(recordDecls);
         content.addAll(globalDecls);

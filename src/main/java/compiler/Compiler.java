@@ -181,22 +181,22 @@ public class Compiler {
         System.out.println("--Basic examples--");
         String input = "var x int = 2; var y int = ((3 + 4) * 5);";
         System.out.println("Input: " + input);
-        ProgramCodeGenerator program = parseInput(input);
+        Program program = parseInput(input);
         CodeGenerator codeGen = new CodeGenerator();
-        String code = codeGen.generateCode(program); // This version returns the bytecode as String and not Byte[].
+        String code = codeGen.generateCode(new ProgramCodeGenerator(program)); // This version returns the bytecode as String and not Byte[].
         System.out.println("Generated code:\n" + code);
 
         // More examples
         input = "var x int = 2; x = (3 + 4);";
         System.out.println("Input: " + input);
         program = parseInput(input);
-        code = codeGen.generateCode(program);
+        code = codeGen.generateCode(new ProgramCodeGenerator(program));
         System.out.println("Generated code:\n" + code);
 
         input = "//This is a comment\nvar x int = 2;\nvar y int = 3;\nvar z int = x + y;";
         System.out.println("Input: " + input);
         program = parseInput(input);
-        code = codeGen.generateCode(program);
+        code = codeGen.generateCode(new ProgramCodeGenerator(program));
         System.out.println("Generated code:\n" + code);
 
         // Example using "code_example.lang" file
@@ -209,7 +209,7 @@ public class Compiler {
             throw new RuntimeException(e);
         }
         program = parseInput(input);
-        code = codeGen.generateCode(program);
+        code = codeGen.generateCode(new ProgramCodeGenerator(program));
         System.out.println("Generated code:\n" + code);
     }
 
