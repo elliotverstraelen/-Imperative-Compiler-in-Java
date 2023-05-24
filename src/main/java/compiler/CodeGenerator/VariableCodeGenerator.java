@@ -3,10 +3,11 @@ package compiler.CodeGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class Variable extends Expression {
+public class VariableCodeGenerator extends ExpressionCodeGenerator {
     private final String name;
 
-    public Variable(String name) {
+    public VariableCodeGenerator(String name) {
+        super("VariableExpr");
         this.name = name;
     }
 

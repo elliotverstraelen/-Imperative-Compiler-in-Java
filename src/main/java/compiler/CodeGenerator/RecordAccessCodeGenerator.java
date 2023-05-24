@@ -3,10 +3,11 @@ package compiler.CodeGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class RecordAccess extends Expression {
+public class RecordAccessCodeGenerator extends ExpressionCodeGenerator {
     private final String name;
 
-    public RecordAccess(String name) {
+    public RecordAccessCodeGenerator(String name) {
+        super("RecordAccess");
         this.name = name;
     }
 

@@ -1,13 +1,15 @@
 package compiler.CodeGenerator;
 
+import compiler.Lexer.Lexer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class Assignment extends StmtCodeGenerator {
-    private IdentifierExpr identifier;
-    private Expression expression;
+public class AssignmentCodeGenerator extends StmtCodeGenerator {
+    private final IdentifierExprCodeGenerator identifier;
+    private final ExpressionCodeGenerator expression;
 
-    public Assignment(IdentifierExpr identifier, Expression expression) {
+    public AssignmentCodeGenerator(IdentifierExprCodeGenerator identifier, ExpressionCodeGenerator expression) {
+        super(Lexer.Token.SYMBOL_ASSIGN);
         this.identifier = identifier;
         this.expression = expression;
     }

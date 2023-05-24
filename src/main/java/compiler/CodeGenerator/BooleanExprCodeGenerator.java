@@ -4,10 +4,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 // Boolean Expression CodeGen
-public class BooleanExpr extends Expression {
+public class BooleanExprCodeGenerator extends ExpressionCodeGenerator {
     private boolean value;
 
-    public BooleanExpr(boolean value) {
+    public BooleanExprCodeGenerator(boolean value) {
+        super("BooleanExpr");
         this.value = value;
     }
 

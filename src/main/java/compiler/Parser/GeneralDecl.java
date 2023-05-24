@@ -29,13 +29,9 @@ public abstract class GeneralDecl implements ASTNode {
         return identifier;
     }
 
-    public Type getType() {
-        return type;
-    }
+    public Type getType() { return type; }
 
-    public Expr getValue() {
-        return value;
-    }
+    public Expr getValue() { return value; }
 
     @Override
     public void accept(ASTVisitor visitor) throws SemanticException {

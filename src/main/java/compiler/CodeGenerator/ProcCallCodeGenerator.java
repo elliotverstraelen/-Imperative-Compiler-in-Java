@@ -9,15 +9,15 @@ import java.util.List;
 
 public class ProcCallCodeGenerator {
     private String identifier;
-    private List<Expression> args;
+    private List<ExpressionCodeGenerator> args;
 
-    public ProcCallCodeGenerator(String identifier, List<Expression> args) {
+    public ProcCallCodeGenerator(String identifier, List<ExpressionCodeGenerator> args) {
         this.identifier = identifier;
         this.args = args;
     }
 
     public void generateCode(MethodVisitor visitor) {
-        for (Expression arg : args) {
+        for (ExpressionCodeGenerator arg : args) {
             arg.generateCode(visitor);
         }
         visitor.visitMethodInsn(Opcodes.INVOKESTATIC, "MyClass", identifier,

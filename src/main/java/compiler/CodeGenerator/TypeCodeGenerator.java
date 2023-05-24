@@ -1,9 +1,9 @@
 package compiler.CodeGenerator;
 
-public class Type {
+public class TypeCodeGenerator {
     private final String typeName;
 
-    public Type(String typeName) {
+    public TypeCodeGenerator(String typeName) {
         this.typeName = typeName;
     }
 

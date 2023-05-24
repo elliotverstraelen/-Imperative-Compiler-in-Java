@@ -3,10 +3,11 @@ package compiler.CodeGenerator;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class IdentifierExpr extends Expression {
+public class IdentifierExprCodeGenerator extends ExpressionCodeGenerator {
     private final String identifier;
 
-    public IdentifierExpr(String identifier) {
+    public IdentifierExprCodeGenerator(String identifier) {
+        super("IdentifierExpr");
         this.identifier = identifier;
     }
 

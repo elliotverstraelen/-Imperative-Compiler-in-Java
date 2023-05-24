@@ -2,10 +2,11 @@ package compiler.CodeGenerator;
 
 import org.objectweb.asm.MethodVisitor;
 
-public class StringExpr extends Expression {
-    private final String value;
+public class RealExprCodeGenerator extends ExpressionCodeGenerator {
+    private final float value;
 
-    public StringExpr(String value) {
+    public RealExprCodeGenerator(float value) {
+        super("RealExpr");
         this.value = value;
     }
 

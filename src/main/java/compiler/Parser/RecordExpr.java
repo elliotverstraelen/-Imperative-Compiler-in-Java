@@ -1,7 +1,6 @@
 package compiler.Parser;
 
 import compiler.Exceptions.SemanticException;
-
 import java.util.ArrayList;
 
 public class RecordExpr extends Expr {
