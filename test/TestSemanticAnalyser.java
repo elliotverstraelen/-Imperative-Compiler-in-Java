@@ -105,54 +105,6 @@ public class TestSemanticAnalyser {
     }
 
     /**
-     * Test using an undeclared variable in a conditional statement
-     */
-    @Test
-    public void testUsingUndeclaredVariableInCondition() {
-        /* not implemented yet
-        String input = "if (x < 10) { var y int = 5; }";
-        StringReader reader = new StringReader(input);
-        Lexer lexer = new Lexer(reader);
-        Program program = new Parser(lexer).getProgram();
-        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
-        assertThrows(SemanticException.class, () -> {
-            program.accept(semanticAnalyser);
-        }); */
-    }
-
-    /**
-     * Test wrong type in a conditional statement
-     */
-    @Test
-    public void testWrongTypeInCondition() {
-        /* not implemented yet
-        String input = "var x int = 2; if (x) { var y int = 5; }";
-        StringReader reader = new StringReader(input);
-        Lexer lexer = new Lexer(reader);
-        Program program = new Parser(lexer).getProgram();
-        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
-        assertThrows(SemanticException.class, () -> {
-            program.accept(semanticAnalyser);
-        }); */
-    }
-
-    /**
-     * Test wrong type in a procedure call
-     */
-    @Test
-    public void testWrongTypeInProcedureCall() {
-        /* not implemented yet
-        String input = "proc foo(x int) { var y int = x + 2; } foo(true);";
-        StringReader reader = new StringReader(input);
-        Lexer lexer = new Lexer(reader);
-        Program program = new Parser(lexer).getProgram();
-        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
-        assertThrows(SemanticException.class, () -> {
-            program.accept(semanticAnalyser);
-        }); */
-    }
-
-    /**
      * Test using a variable before its declaration
      */
     @Test
@@ -215,38 +167,6 @@ public class TestSemanticAnalyser {
         assertThrows(SemanticException.class, () -> {
             program.accept(semanticAnalyser);
         });
-    }
-
-    /**
-     * Test undeclared function call
-     */
-    @Test
-    public void testUndeclaredProcedureCall() {
-        /* not implemented yet
-        String input = "func foo() int { return bar(); }";
-        StringReader reader = new StringReader(input);
-        Lexer lexer = new Lexer(reader);
-        Program program = new Parser(lexer).getProgram();
-        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
-        assertThrows(SemanticException.class, () -> {
-            program.accept(semanticAnalyser);
-        }); */
-    }
-
-    /**
-     * Test uninitialized variable
-     */
-    @Test
-    public void testUninitializedVariable() {
-        /* Not supported yet
-        String input = "var x int; var y int = x;";
-        StringReader reader = new StringReader(input);
-        Lexer lexer = new Lexer(reader);
-        Program program = new Parser(lexer).getProgram();
-        SemanticAnalyzer semanticAnalyser = new SemanticAnalyzer();
-        assertThrows(SemanticException.class, () -> {
-            program.accept(semanticAnalyser);
-        }); */
     }
 
     /**
